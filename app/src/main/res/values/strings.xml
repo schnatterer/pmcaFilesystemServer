@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">PMCADemo</string>
+    <string name="title_activity_main">PMCADemo</string>
+    <string name="title_activity_key_event">Key events</string>
+    <string name="title_activity_property">Properties</string>
+    <string name="title_activity_time">Time</string>
+    <string name="title_activity_wifi">Internet</string>
+    <string name="title_activity_wifi_setting">Wifi Settings</string>
+    <string name="title_activity_wifi_direct">Wifi direct</string>
+    <string name="title_activity_camera">Camera</string>
+    <string name="title_activity_display">Display</string>
+    <string name="title_activity_led">LEDs</string>
+    <string name="title_activity_playback">Playback</string>
+    <string name="title_activity_image">View Image</string>
+    <string name="title_activity_install">Install</string>
+
+    <string name="type">Device type</string>
+    <string name="brand">Brand</string>
+    <string name="model">Model</string>
+    <string name="category">Category</string>
+    <string name="productCode">Product code</string>
+    <string name="serial">Serial number</string>
+    <string name="firmwareVersion">Firmware</string>
+    <string name="hardwareVersion">Hardware version</string>
+    <string name="apiVersion">Api version</string>
+    <string name="androidVersion">Android version</string>
+    <string name="androidSdk">Android SDK version</string>
+    <string name="androidIncremental">Android incremental version</string>
+</resources>

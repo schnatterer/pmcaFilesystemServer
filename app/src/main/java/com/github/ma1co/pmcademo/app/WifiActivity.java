@@ -11,7 +11,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.format.Formatter;
 import android.widget.TextView;
-
+import info.schnatterer.pmcaFilesystemServer.R;
 import java.io.IOException;
 
 public class WifiActivity extends BaseActivity {

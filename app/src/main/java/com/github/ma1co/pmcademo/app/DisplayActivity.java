@@ -4,6 +4,7 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.widget.TextView;
 import com.github.ma1co.openmemories.framework.DisplayManager;
+import info.schnatterer.pmcaFilesystemServer.R;
 
 import java.util.Arrays;
 

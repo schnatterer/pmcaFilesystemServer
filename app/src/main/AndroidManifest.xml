@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          package="com.github.ma1co.pmcademo.app" >
+          package="info.schnatterer.pmcaFilesystemServer" >
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application android:label="@string/app_name"
                  tools:ignore="GoogleAppIndexingWarning">
-        <receiver android:name=".ExitCompletedReceiver" >
+        <receiver android:name="com.github.ma1co.pmcademo.app.ExitCompletedReceiver" >
             <intent-filter>
                 <action android:name="com.android.server.DAConnectionManagerService.ExitCompleted" />
                 <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".BootCompletedReceiver" >
+        <receiver android:name="com.github.ma1co.pmcademo.app.BootCompletedReceiver" >
             <intent-filter>
                 <action android:name="com.android.server.DAConnectionManagerService.BootCompleted" />
                 <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT" />
@@ -25,7 +23,7 @@
         </receiver>
 
         <activity
-            android:name=".WifiActivity"
+            android:name="com.github.ma1co.pmcademo.app.WifiActivity"
             android:label="@string/title_activity_wifi" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,11 +31,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PropertyActivity"
+            android:name="com.github.ma1co.pmcademo.app.PropertyActivity"
             android:label="@string/title_activity_property" >
         </activity>
         <activity
-            android:name=".DisplayActivity"
+            android:name="com.github.ma1co.pmcademo.app.DisplayActivity"
             android:label="@string/title_activity_display" >
         </activity>
     </application>

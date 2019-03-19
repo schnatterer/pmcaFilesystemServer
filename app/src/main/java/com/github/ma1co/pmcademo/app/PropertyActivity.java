@@ -2,6 +2,7 @@ package com.github.ma1co.pmcademo.app;
 
 import android.os.Bundle;
 import android.widget.ListView;
+import info.schnatterer.pmcaFilesystemServer.R;
 
 public class PropertyActivity extends BaseActivity {
     protected class PropertyListItem extends ListAdapter.ListItem {

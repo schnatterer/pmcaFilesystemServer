@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">FileSystemServer</string>
     <string name="title_activity_property">Properties</string>
-    <string name="title_activity_wifi">Connect to WiFi</string>
+    <string name="title_activity_wifi">Start Server via Wifi</string>
     <string name="title_activity_wifi_setting">Wifi Settings</string>
-    <string name="title_activity_wifi_direct">Wifi direct</string>
+    <string name="title_activity_wifi_direct">Start Server via Wifi direct</string>
     <string name="title_activity_display">Display</string>
 
     <string name="type">Device type</string>

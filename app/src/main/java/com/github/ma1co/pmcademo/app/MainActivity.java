@@ -33,10 +33,10 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
     }
 
     protected ActivityListItem activities[] = {
-        new ActivityListItem(R.string.title_activity_property, PropertyActivity.class),
         new ActivityListItem(R.string.title_activity_wifi, WifiActivity.class),
-        new ActivityListItem(R.string.title_activity_wifi_setting, WifiSettingActivity.class),
         new ActivityListItem(R.string.title_activity_wifi_direct, WifiDirectActivity.class),
+        new ActivityListItem(R.string.title_activity_wifi_setting, WifiSettingActivity.class),
+        new ActivityListItem(R.string.title_activity_property, PropertyActivity.class),
         new ActivityListItem(R.string.title_activity_display, DisplayActivity.class),
     };
 

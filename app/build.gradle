@@ -5,18 +5,19 @@ android {
     buildToolsVersion '28.0.3'
 
     defaultConfig {
-        applicationId "org.bostwickenator.googlephotos"
+        applicationId "info.schnatterer.pmcaFilesystemServer"
         minSdkVersion 10
-        /* noinspection ExpiredTargetSdkVersion Cameras run older android systems, e.g.
+        /* Cameras run older android systems, e.g.
         Sony α 6500:
         adb shell getprop ro.build.version.release
         4.1.2
         adb shell getprop ro.build.version.sdk
         16
         */
+        //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 23
-        versionCode 6
-        versionName "1.5"
+        versionCode 1
+        versionName "0.1.0"
         multiDexEnabled false
     }
     buildTypes {

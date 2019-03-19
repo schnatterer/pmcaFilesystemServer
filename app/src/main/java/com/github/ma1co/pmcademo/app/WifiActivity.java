@@ -16,7 +16,6 @@ import java.io.IOException;
 
 public class WifiActivity extends BaseActivity {
     private TextView textView;
-    private WebView webView;
     private WifiManager wifiManager;
     private BroadcastReceiver wifiStateReceiver;
     private BroadcastReceiver supplicantStateReceiver;
@@ -26,12 +25,11 @@ public class WifiActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_wifi);
+        setContentView(R.layout.log);
 
         textView = (TextView) findViewById(R.id.logView);
-        webView = (WebView) findViewById(R.id.webView);
 
-        wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
         wifiStateReceiver = new BroadcastReceiver() {
             @Override
@@ -66,7 +64,9 @@ public class WifiActivity extends BaseActivity {
         wifiManager.setWifiEnabled(true);
         try {
             httpServer.start();
-        } catch (IOException e) {}
+        } catch (IOException e) {
+            Logger.error("Failed to start HTTP Server: " + e.getMessage());
+        }
         setAutoPowerOffMode(false);
     }
 
@@ -84,10 +84,6 @@ public class WifiActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        webView.stopLoading();
-        webView.clearCache(true);
-        webView.clearHistory();
-        webView.destroy();
     }
 
     protected void wifiStateChanged(int state) {
@@ -131,7 +127,6 @@ public class WifiActivity extends BaseActivity {
         String ssid = info.getSSID();
         String ip = Formatter.formatIpAddress(info.getIpAddress());
         log(ssid + ": Connected. Server URL: http://" + ip + ":" + HttpServer.PORT + "/");
-        webView.loadUrl("https://www.google.com/");
     }
 
     protected void log(String msg) {

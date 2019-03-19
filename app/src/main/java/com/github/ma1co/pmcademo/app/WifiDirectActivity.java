@@ -97,7 +97,9 @@ public class WifiDirectActivity extends BaseActivity {
         wifiDirectManager.setDirectEnabled(true);
         try {
             httpServer.start();
-        } catch (IOException e) {}
+        } catch (IOException e) {
+            Logger.error("Failed to start HTTP Server: " + e.getMessage());
+        }
         setAutoPowerOffMode(false);
     }
 

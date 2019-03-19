@@ -1,27 +1,29 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 10
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 23
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
-        applicationId "com.github.ma1co.pmcademo.app"
+        applicationId "org.bostwickenator.googlephotos"
         minSdkVersion 10
-        targetSdkVersion 10
-        versionCode "git -C ${projectDir} rev-list --first-parent --count HEAD".execute().text.trim().toInteger()
-        versionName "git -C ${projectDir} describe --always --tags --dirty".execute().text.trim().replaceAll("^v", "")
+        /* noinspection ExpiredTargetSdkVersion Cameras run older android systems, e.g.
+        Sony α 6500:
+        adb shell getprop ro.build.version.release
+        4.1.2
+        adb shell getprop ro.build.version.sdk
+        16
+        */
+        targetSdkVersion 23
+        versionCode 6
+        versionName "1.5"
+        multiDexEnabled false
     }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_6
-        targetCompatibility JavaVersion.VERSION_1_6
-    }
-}
-
-android.applicationVariants.all { variant ->
-    variant.outputs.each { output ->
-        def apkName = "PMCADemo-${output.baseName}-${variant.versionName}.apk"
-        output.outputFile = new File(output.outputFile.parent, apkName)
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
     }
 }
 
@@ -29,4 +31,10 @@ dependencies {
     compile 'com.github.ma1co.OpenMemories-Framework:framework:-SNAPSHOT'
     provided 'com.github.ma1co.OpenMemories-Framework:stubs:-SNAPSHOT'
     compile 'com.nanohttpd:nanohttpd:2.1.1'
+}
+
+repositories {
+    jcenter()
+    maven { url "http://maven.burtsev.net" }
+    maven { url "https://jitpack.io" }
 }

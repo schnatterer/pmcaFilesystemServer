@@ -23,12 +23,24 @@
         </receiver>
 
         <activity
-            android:name="com.github.ma1co.pmcademo.app.WifiActivity"
-            android:label="@string/title_activity_wifi" >
+            android:name="com.github.ma1co.pmcademo.app.MainActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.github.ma1co.pmcademo.app.WifiActivity"
+            android:label="@string/title_activity_wifi" >
+        </activity>
+        <activity
+            android:name="com.github.ma1co.pmcademo.app.WifiSettingActivity"
+            android:label="@string/title_activity_wifi_setting" >
+        </activity>
+        <activity
+            android:name="com.github.ma1co.pmcademo.app.WifiDirectActivity"
+            android:label="@string/title_activity_wifi_direct" >
         </activity>
         <activity
             android:name="com.github.ma1co.pmcademo.app.PropertyActivity"

@@ -1,4 +1,4 @@
-package com.github.ma1co.pmcademo.app;
+package info.schnatterer.pmcaFilesystemServer;
 
 import android.os.Bundle;
 import android.widget.ListView;
@@ -46,6 +46,6 @@ public class PropertyActivity extends BaseActivity {
         setContentView(R.layout.list);
 
         ListView listView = (ListView) findViewById(R.id.listView);
-        listView.setAdapter(new ListAdapter<PropertyListItem>(this, properties));
+        listView.setAdapter(new ListAdapter<>(this, properties));
     }
 }

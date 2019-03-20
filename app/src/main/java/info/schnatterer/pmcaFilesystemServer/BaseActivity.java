@@ -1,4 +1,4 @@
-package com.github.ma1co.pmcademo.app;
+package info.schnatterer.pmcaFilesystemServer;
 
 import android.app.Activity;
 import android.content.Intent;

@@ -1,4 +1,4 @@
-package com.github.ma1co.pmcademo.app;
+package info.schnatterer.pmcaFilesystemServer;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,7 +29,7 @@ public class WifiActivity extends BaseActivity {
 
         textView = (TextView) findViewById(R.id.logView);
 
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
 
         wifiStateReceiver = new BroadcastReceiver() {
             @Override

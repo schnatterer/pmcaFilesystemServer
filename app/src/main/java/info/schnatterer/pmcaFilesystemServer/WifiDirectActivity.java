@@ -1,5 +1,6 @@
-package com.github.ma1co.pmcademo.app;
+package info.schnatterer.pmcaFilesystemServer;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -30,13 +31,15 @@ public class WifiDirectActivity extends BaseActivity {
     private HttpServer httpServer;
 
     @Override
+    // This seems to be a sony-specific value
+    @SuppressLint("WrongConstant")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.log);
 
         textView = (TextView) findViewById(R.id.logView);
 
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         wifiDirectManager = (DirectManager) getApplicationContext().getSystemService(DirectManager.WIFI_DIRECT_SERVICE);
 
         wifiStateReceiver = new BroadcastReceiver() {

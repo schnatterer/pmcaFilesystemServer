@@ -1,4 +1,4 @@
-package com.github.ma1co.pmcademo.app;
+package info.schnatterer.pmcaFilesystemServer;
 
 import android.content.Context;
 import android.view.LayoutInflater;

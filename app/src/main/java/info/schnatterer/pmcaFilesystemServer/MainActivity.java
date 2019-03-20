@@ -14,7 +14,7 @@ import android.widget.TextView;
 import info.schnatterer.pmcaFilesystemServer.R;
 import java.io.IOException;
 
-public class WifiActivity extends BaseActivity {
+public class MainActivity extends BaseActivity {
     private TextView textView;
     private WifiManager wifiManager;
     private BroadcastReceiver wifiStateReceiver;

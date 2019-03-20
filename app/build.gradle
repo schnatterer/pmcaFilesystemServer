@@ -1,24 +1,24 @@
 apply plugin: 'com.android.application'
 
 android {
+    /* Cameras run older android systems, e.g.
+    Sony α 6500:
+    adb shell getprop ro.build.version.release
+    4.1.2
+    adb shell getprop ro.build.version.sdk
+    16
+    */
     compileSdkVersion 23
     buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId "info.schnatterer.pmcaFilesystemServer"
+        //noinspection MinSdkTooLow
         minSdkVersion 10
-        /* Cameras run older android systems, e.g.
-        Sony α 6500:
-        adb shell getprop ro.build.version.release
-        4.1.2
-        adb shell getprop ro.build.version.sdk
-        16
-        */
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 23
         versionCode 1
         versionName "0.1.0"
-        multiDexEnabled false
     }
     buildTypes {
         release {
@@ -32,9 +32,4 @@ dependencies {
     compile 'com.github.ma1co.OpenMemories-Framework:framework:f8df350'
     provided 'com.github.ma1co.OpenMemories-Framework:stubs:f8df350'
     compile 'org.nanohttpd:nanohttpd:2.3.1'
-}
-
-repositories {
-    jcenter()
-    maven { url "https://jitpack.io" }
 }

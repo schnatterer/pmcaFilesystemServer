@@ -1,81 +1,49 @@
-# PMCADemo #
+pmcaFilesystemServer
+====
 
-An Android demo app for Sony cameras to test some features.
+Simple Android app for Sony Cameras ( PlayMemories Camera App Store) that provides the File System 
+of the camera via HTTP.
 
-## Installation ##
-Install it here: [sony-pmca.appspot.com/apps](https://sony-pmca.appspot.com/apps)
+This app uses the [OpenMemories: Framework](https://github.com/ma1co/OpenMemories-Framework) and is 
+greatly inspired by the following existing open source PMCA Apps
 
-## Usage ##
-* The trash button is mapped to the back key
-* The app writes a log to the SD card (*PMCADEMO/LOG.TXT*)
+* [ma1co/PMCADemo](https://github.com/ma1co/PMCADemo)
+* [LubikR/SynologyUploader](https://github.com/LubikR/SynologyUploader)
+* [Bostwickenator/STGUploader](https://github.com/Bostwickenator/STGUploader)
 
-The following options are available:
+# Installation 
 
-### Camera ##
-Displays the live view image and allows you to take a picture. The last settings are used. Mode dial changes are ignored.
+* Use [Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE) 
+* or through adb.
+* In the future it might be available via [sony-pmca.appspot.com](https://sony-pmca.appspot.com/apps). 
 
-* Half-press the shutter button to focus
-* Fully press the shutter button to take a picture (it is saved on your SD card just as if you had taken it outside of Android) 
-* Press the trash button to exit
+# Usage
 
-### Key events ###
-Displays key events.
+On Startup a WiFi Connection will be established. Once this succeeds a webserver is started 
+and its URL is displayed. There you can download all data from the camera, like images and videos.
 
-* Press any key or disconnect the lens to log it on the screen
-* Press the trash button to exit
+This works around the constraint of certain Sony cameras where videos can not be downloaded via WiFi.
 
-### Properties ###
-Displays some camera properties (Model, serial number, etc.)
+# Development
 
-* Press the trash button to exit
+```bash
+adb tcpip 5555
+adb connect 192.168.178.53:5555
+```
 
-### Time ###
-Displays the current time. The camera time zone is used.
+See https://stackoverflow.com/a/3623727
 
-* Press the trash button to exit
+For creating a signed release, see https://developer.android.com/studio/publish/app-signing#sign_release  
+Right now, this step is not yet automated using gradle.
 
-### Internet ###
-Connects to one of the configured wifi networks and displays a web browser. A simple web server is started, too. Open the displayed URL on any client in the same network.
+The app writes a log file to the SD card: `/storage/sdcard0/pmcaFilesystemServer/LOG.TXT`.
 
-* Use the up / down / left / right and enter keys to use the browser
-* Press the trash button to exit
+## Icon
 
-### Wifi settings ###
-Opens the standard wifi settings.
+Was generated with 
+[AndroidAssetStudio](https://romannurik.github.io/AndroidAssetStudio/icons-launcher.html#foreground.type=text&foreground.text.text=HTTP%20FS&foreground.text.font=Allerta%20Stencil&foreground.space.trim=1&foreground.space.pad=0.1&foreColor=rgba(96%2C%20125%2C%20139%2C%200)&backColor=rgb(139%2C%20195%2C%2074)&crop=0&backgroundShape=square&effects=none&name=ic_launcher) 
 
-* Press the menu button to exit
+## Feature Ideas
 
-### Wifi direct ###
-Enables the camera's wifi direct network and starts a simple web server. Connect a client to the wifi and open the displayed URL. WPS is currently not supported. 
-
-* Press the trash button to exit
-
-### Display ###
-Logs changes of the active display.
-
-* Press the enter button or use the eyepiece sensor to change displays
-* Press the trash button to exit
-
-### LEDs ###
-Test some camera LEDs. The charging LED doesn't seem to be supported.
-
-* Half-press the shutter button to turn on the AF light
-* Press the enter button to flash the card LED in different speeds
-* Press the trash button to exit
-
-### Playback ###
-Displays the images on your SD card.
-
-* Use the up / down keys to select an image
-* Press the enter button to display it
-* Press the trash button to exit
-
-### Install ###
-Install new apps from your SD card. All *.spk* files under *[SD card]/PMCADEMO* are listed. You can download apps in spk format [here](https://sony-pmca.appspot.com/apps).
-
-* Use the up / down keys to select a package
-* Press the enter button to install it
-* Press the trash button to exit
-
-## The Framework ##
-This app uses several Sony custom APIs. See [OpenMemories: Framework](https://github.com/ma1co/OpenMemories-Framework) for more information.
+* QR Code: https://stackoverflow.com/a/8800974/
+* Basic Auth: https://github.com/NanoHttpd/nanohttpd/issues/496

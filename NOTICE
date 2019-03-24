@@ -1,0 +1,10 @@
+pmcaFilesystemServer
+
+Copyright 2019 Johannes Schnatterer.  
+Published under The MIT License (MIT).
+
+This product reuses code of the following products.
+
+* https://github.com/ma1co/PMCADemo
+* https://github.com/LubikR/SynologyUploader
+* https://github.com/Bostwickenator/STGUploader

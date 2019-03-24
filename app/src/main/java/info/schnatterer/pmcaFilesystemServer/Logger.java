@@ -4,8 +4,13 @@ import android.os.Environment;
 import android.util.Log;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Logger {
+
+    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+
     public static File getFile() {
         // e.g. /storage/sdcard0/pmcaFilesystemServer/LOG.TXT
         return new File(Environment.getExternalStorageDirectory(), "pmcaFilesystemServer/LOG.TXT");
@@ -15,6 +20,8 @@ public class Logger {
         try {
             getFile().getParentFile().mkdirs();
             BufferedWriter writer = new BufferedWriter(new FileWriter(getFile(), true));
+            SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
+            writer.append(sdf.format(new Date()) + " ");
             writer.append(msg);
             writer.newLine();
             writer.close();

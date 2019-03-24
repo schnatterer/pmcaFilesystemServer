@@ -1,12 +1,14 @@
 package info.schnatterer.pmcaFilesystemServer;
 
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.*;
 
 public class Logger {
     public static File getFile() {
-        return new File(Environment.getExternalStorageDirectory(), "PMCADEMO/LOG.TXT");
+        // e.g. /storage/sdcard0/pmcaFilesystemServer/LOG.TXT
+        return new File(Environment.getExternalStorageDirectory(), "pmcaFilesystemServer/LOG.TXT");
     }
 
     protected static void log(String msg) {
@@ -16,7 +18,9 @@ public class Logger {
             writer.append(msg);
             writer.newLine();
             writer.close();
-        } catch (IOException e) {}
+        } catch (IOException e) {
+            Log.e("pmcaFilesystemServer", "Error writing log", e);
+        }
     }
     protected static void log(String type, String msg) { log("[" + type + "] " + msg); }
 

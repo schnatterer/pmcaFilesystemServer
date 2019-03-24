@@ -11,12 +11,10 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.format.Formatter;
 import android.widget.TextView;
-import info.schnatterer.pmcaFilesystemServer.R;
 import java.io.IOException;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends WifiActivity {
     private TextView textView;
-    private WifiManager wifiManager;
     private BroadcastReceiver wifiStateReceiver;
     private BroadcastReceiver supplicantStateReceiver;
     private BroadcastReceiver networkStateReceiver;
@@ -28,8 +26,6 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.log);
 
         textView = (TextView) findViewById(R.id.logView);
-
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
 
         wifiStateReceiver = new BroadcastReceiver() {
             @Override

@@ -6,6 +6,7 @@ import android.util.Log;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class Logger {
 
@@ -20,8 +21,9 @@ public class Logger {
         try {
             getFile().getParentFile().mkdirs();
             BufferedWriter writer = new BufferedWriter(new FileWriter(getFile(), true));
-            SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
-            writer.append(sdf.format(new Date()) + " ");
+            SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN, Locale.US);
+            writer.append(sdf.format(new Date()));
+            writer.append(" ");
             writer.append(msg);
             writer.newLine();
             writer.close();

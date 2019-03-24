@@ -21,10 +21,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ConnectActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+        <activity
+            android:name=".WifiActivity"
+            android:label="@string/title_activity_wifi" >
+        </activity>
+        <activity
+            android:name=".WifiSettingActivity"
+            android:label="@string/title_activity_wifi_setting" >
+        </activity>
+        <activity
+            android:name=".WifiDirectActivity"
+            android:label="@string/title_activity_wifi_direct" >
         </activity>
     </application>
 

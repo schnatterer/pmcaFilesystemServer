@@ -4,108 +4,132 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.text.format.Formatter;
+import android.widget.TextView;
+
+import java.io.IOException;
 
 public class WifiActivity extends BaseActivity {
-
-    public enum WifiState {
-        DISABLED("Wifi disabled"),
-        ENABLING("Enabling wifi..."),
-        ENABLED("Wifi enabled"),
-        SCANNING("Scanning..."),
-        CONNECTING("Connecting..."),
-        CONNECTED("Wifi connected");
-
-        private String label;
-
-        WifiState(String label) {
-            this.label = label;
-        }
-
-        @Override
-        public String toString() {
-            return label;
-        }
-    }
-
-    private ConnectivityManager connectivityManager;
-    protected WifiManager wifiManager;
-    private BroadcastReceiver receiver;
-    private boolean keepWifiOn = false;
+    private TextView textView;
+    private WifiManager wifiManager;
+    private BroadcastReceiver wifiStateReceiver;
+    private BroadcastReceiver supplicantStateReceiver;
+    private BroadcastReceiver networkStateReceiver;
+    private HttpServer httpServer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.log);
 
-        connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        receiver = new BroadcastReceiver() {
+        textView = (TextView) findViewById(R.id.logView);
+
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+
+        wifiStateReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                onWifiStateChanged();
+                wifiStateChanged(intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN));
             }
         };
+
+        supplicantStateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                networkStateChanged(WifiInfo.getDetailedStateOf((SupplicantState) intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE)));
+            }
+        };
+
+        networkStateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                networkStateChanged(((NetworkInfo) intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO)).getDetailedState());
+            }
+        };
+
+        httpServer = new HttpServer();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        IntentFilter f = new IntentFilter();
-        f.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-        f.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        f.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
-        registerReceiver(receiver, f);
-        onWifiStateChanged();
+        registerReceiver(wifiStateReceiver, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
+        registerReceiver(supplicantStateReceiver, new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION));
+        registerReceiver(networkStateReceiver, new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
+        wifiManager.setWifiEnabled(true);
+        try {
+            httpServer.start();
+        } catch (IOException e) {
+            Logger.error("Failed to start HTTP Server: " + e.getMessage());
+        }
+        setAutoPowerOffMode(false);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(receiver);
-        if (!keepWifiOn) {
-            setWifiEnabled(false);
-        }
-        keepWifiOn = false;
+        unregisterReceiver(wifiStateReceiver);
+        unregisterReceiver(supplicantStateReceiver);
+        unregisterReceiver(networkStateReceiver);
+        wifiManager.setWifiEnabled(false);
+        httpServer.stop();
+        setAutoPowerOffMode(true);
     }
 
-    public void onWifiStateChanged() {
-        if (getWifiState() != WifiState.CONNECTED) {
-            startActivity(new Intent(this, ConnectActivity.class));
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
-    public WifiState getWifiState() {
-        switch (wifiManager.getWifiState()) {
-            case WifiManager.WIFI_STATE_ENABLED:
-                if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected()) {
-                    return WifiState.CONNECTED;
-                } else {
-                    switch (WifiInfo.getDetailedStateOf(wifiManager.getConnectionInfo().getSupplicantState())) {
-                        case SCANNING:
-                            return WifiState.SCANNING;
-                        case AUTHENTICATING:
-                        case CONNECTING:
-                        case OBTAINING_IPADDR:
-                            return WifiState.CONNECTING;
-                        default:
-                            return WifiState.ENABLED;
-                    }
-                }
+    protected void wifiStateChanged(int state) {
+        switch (state) {
             case WifiManager.WIFI_STATE_ENABLING:
-                return WifiState.ENABLING;
-            default:
-                return WifiState.DISABLED;
+                log("Enabling wifi");
+                break;
+            case WifiManager.WIFI_STATE_ENABLED:
+                log("Wifi enabled");
+                break;
         }
     }
 
-    public void setWifiEnabled(boolean enabled) {
-        wifiManager.setWifiEnabled(enabled);
+    protected void networkStateChanged(NetworkInfo.DetailedState state) {
+        String ssid = wifiManager.getConnectionInfo().getSSID();
+        switch (state) {
+            case CONNECTING:
+                if (ssid != null)
+                    log(ssid + ": Connecting");
+                break;
+            case AUTHENTICATING:
+                log(ssid + ": Authenticating");
+                break;
+            case OBTAINING_IPADDR:
+                log(ssid + ": Obtaining IP");
+                break;
+            case CONNECTED:
+                wifiConnected();
+                break;
+            case DISCONNECTED:
+                log("Disconnected");
+                break;
+            case FAILED:
+                log("Connection failed");
+                break;
+        }
     }
 
-    public void setKeepWifiOn() {
-        keepWifiOn = true;
+    protected void wifiConnected() {
+        WifiInfo info = wifiManager.getConnectionInfo();
+        String ssid = info.getSSID();
+        String ip = Formatter.formatIpAddress(info.getIpAddress());
+        log(ssid + ": Connected. Server URL: http://" + ip + ":" + HttpServer.PORT + "/");
+    }
+
+    protected void log(String msg) {
+        textView.setText(msg);
     }
 }

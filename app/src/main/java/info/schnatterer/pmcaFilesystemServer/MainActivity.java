@@ -1,131 +1,67 @@
 package info.schnatterer.pmcaFilesystemServer;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.NetworkInfo;
-import android.net.wifi.SupplicantState;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.text.format.Formatter;
-import android.widget.TextView;
-import java.io.IOException;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
-public class MainActivity extends WifiActivity {
-    private TextView textView;
-    private BroadcastReceiver wifiStateReceiver;
-    private BroadcastReceiver supplicantStateReceiver;
-    private BroadcastReceiver networkStateReceiver;
-    private HttpServer httpServer;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+public class MainActivity extends BaseActivity implements AdapterView.OnItemClickListener {
+    protected class ActivityListItem extends ListAdapter.ListItem {
+        private int nameResource;
+        private Class<? extends Activity> clazz;
+
+        public ActivityListItem(int nameResource, Class<? extends Activity> clazz) {
+            this.nameResource = nameResource;
+            this.clazz = clazz;
+        }
+
+        @Override
+        public String getText1() {
+            return getResources().getString(nameResource);
+        }
+
+        public Class<? extends Activity> getActivityClass() {
+            return clazz;
+        }
+    }
+
+    protected ActivityListItem activities[] = {
+            new ActivityListItem(R.string.title_activity_wifi, WifiActivity.class),
+            new ActivityListItem(R.string.title_activity_wifi_direct, WifiDirectActivity.class),
+            new ActivityListItem(R.string.title_activity_wifi_setting, WifiSettingActivity.class),
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.log);
+        setContentView(R.layout.list);
 
-        textView = (TextView) findViewById(R.id.logView);
-
-        wifiStateReceiver = new BroadcastReceiver() {
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
-            public void onReceive(Context context, Intent intent) {
-                wifiStateChanged(intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN));
-            }
-        };
+            public void uncaughtException(Thread thread, Throwable throwable) {
+                StringWriter sw = new StringWriter();
+                sw.append(throwable.toString());
+                sw.append("\n");
+                throwable.printStackTrace(new PrintWriter(sw));
+                Logger.error(sw.toString());
 
-        supplicantStateReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                networkStateChanged(WifiInfo.getDetailedStateOf((SupplicantState) intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE)));
+                System.exit(0);
             }
-        };
+        });
 
-        networkStateReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                networkStateChanged(((NetworkInfo) intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO)).getDetailedState());
-            }
-        };
-
-        httpServer = new HttpServer();
+        ListView listView = (ListView) findViewById(R.id.listView);
+        listView.setAdapter(new ListAdapter<ActivityListItem>(this, activities));
+        listView.setOnItemClickListener(this);
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        registerReceiver(wifiStateReceiver, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
-        registerReceiver(supplicantStateReceiver, new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION));
-        registerReceiver(networkStateReceiver, new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
-        wifiManager.setWifiEnabled(true);
-        try {
-            httpServer.start();
-        } catch (IOException e) {
-            Logger.error("Failed to start HTTP Server: " + e.getMessage());
-        }
-        setAutoPowerOffMode(false);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(wifiStateReceiver);
-        unregisterReceiver(supplicantStateReceiver);
-        unregisterReceiver(networkStateReceiver);
-        wifiManager.setWifiEnabled(false);
-        httpServer.stop();
-        setAutoPowerOffMode(true);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    protected void wifiStateChanged(int state) {
-        switch (state) {
-            case WifiManager.WIFI_STATE_ENABLING:
-                log("Enabling wifi");
-                break;
-            case WifiManager.WIFI_STATE_ENABLED:
-                log("Wifi enabled");
-                break;
-        }
-    }
-
-    protected void networkStateChanged(NetworkInfo.DetailedState state) {
-        String ssid = wifiManager.getConnectionInfo().getSSID();
-        switch (state) {
-            case CONNECTING:
-                if (ssid != null)
-                    log(ssid + ": Connecting");
-                break;
-            case AUTHENTICATING:
-                log(ssid + ": Authenticating");
-                break;
-            case OBTAINING_IPADDR:
-                log(ssid + ": Obtaining IP");
-                break;
-            case CONNECTED:
-                wifiConnected();
-                break;
-            case DISCONNECTED:
-                log("Disconnected");
-                break;
-            case FAILED:
-                log("Connection failed");
-                break;
-        }
-    }
-
-    protected void wifiConnected() {
-        WifiInfo info = wifiManager.getConnectionInfo();
-        String ssid = info.getSSID();
-        String ip = Formatter.formatIpAddress(info.getIpAddress());
-        log(ssid + ": Connected. Server URL: http://" + ip + ":" + HttpServer.PORT + "/");
-    }
-
-    protected void log(String msg) {
-        textView.setText(msg);
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        ActivityListItem item = (ActivityListItem) adapterView.getItemAtPosition(position);
+        startActivity(new Intent(this, item.getActivityClass()));
     }
 }

@@ -1,35 +1,39 @@
 package info.schnatterer.pmcaFilesystemServer;
 
-import android.webkit.MimeTypeMap;
+import com.github.ma1co.openmemories.framework.DeviceInfo;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.List;
 
-import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.SimpleWebServer;
 
-public class HttpServer extends NanoHTTPD {
-    public static final int PORT = 8080;
+public class HttpServer extends SimpleWebServer {
+    static final int PORT = 8080;
+    static final String HOST = null; // bind to all interfaces by default
+    static final String WWW_ROOT = "/";
+    static final boolean QUIET = false;
 
     public HttpServer() {
-        super(PORT);
+        super(HOST, PORT, new File(WWW_ROOT).getAbsoluteFile(), QUIET);
     }
 
     @Override
-    public NanoHTTPD.Response serve(NanoHTTPD.IHTTPSession session) {
+    public Response serve(IHTTPSession session) {
 
         if (session.getUri().equals("/")) {
             return serveRoot();
         } else {
-            /* TODO right now we serve the whole file system. This might be a security risk.
-               Validation might make sense here
-             */
-            return serveFiles(session);
+            return super.serve(session);
         }
     }
+
     private Response serveRoot() {
-        StringBuilder response = new StringBuilder();
+        String heading =  getDeviceInfo().getBrand() + " - " + getDeviceInfo().getModel();
+        StringBuilder response = new StringBuilder("<html><head><title>" + heading
+                + "</title><style><!--\n" + "span.dirname { font-weight: bold; }\n"
+                + "span.filesize { font-size: 75%; }\n"
+                + "// -->\n" + "</style>" + "</head><body><h1>" + heading + "</h1>");
+
         response.append("<h1>Videos</h1>");
         createFileList(FilesystemScanner.getVideosOnExternalStorage(), response);
 
@@ -39,7 +43,26 @@ public class HttpServer extends NanoHTTPD {
         response.append("<h1>RAW</h1>");
         createFileList(FilesystemScanner.getRawsOnExternalStorage(), response);
 
+        response.append("<h1>Log File</h1>");
+        createLinkToLogFile(response);
+
+        response.append("<h1>File System</h1>");
+        response.append(listDirectory("/", new File("/"))
+                .replaceFirst("<html>.*<body>", ""));
         return newFixedLengthResponse(Response.Status.OK, MIME_HTML, response.toString());
+    }
+
+    private void createLinkToLogFile(StringBuilder response) {
+        response.append("<a href=\"");
+        File logFile = Logger.getFile();
+        response.append(logFile.getAbsolutePath());
+        response.append("\">");
+        response.append(logFile.getName());
+        response.append("</a>");
+    }
+
+    private DeviceInfo getDeviceInfo() {
+        return DeviceInfo.getInstance();
     }
 
     private void createFileList(List<File> files, StringBuilder response) {
@@ -52,26 +75,5 @@ public class HttpServer extends NanoHTTPD {
             response.append("</a></li>");
         }
         response.append("</ul>");
-    }
-
-    private Response serveFiles(IHTTPSession session) {
-        FileInputStream fis;
-        try {
-            fis = new FileInputStream(session.getUri());
-            return newFixedLengthResponse(Response.Status.OK, getMimeType(session.getUri()), fis,
-                    new File(session.getUri()).length());
-        } catch (FileNotFoundException e) {
-            Logger.info("File not found");
-            return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_HTML, "File Not Found");
-        }
-    }
-
-    private static String getMimeType(String url) {
-        String type = null;
-        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-        if (extension != null) {
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-        }
-        return type;
     }
 }

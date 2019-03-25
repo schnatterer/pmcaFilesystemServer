@@ -1,5 +1,6 @@
 pmcaFilesystemServer
 ====
+[![Build Status](https://travis-ci.org/schnatterer/pmcaFilesystemServer.svg?branch=develop)](https://travis-ci.org/schnatterer/pmcaFilesystemServer)
 
 Simple Android app for Sony Cameras ( PlayMemories Camera App Store) that provides the File System 
 of the camera via HTTP.
@@ -23,6 +24,10 @@ On Startup a WiFi Connection will be established. Once this succeeds a webserver
 and its URL is displayed. There you can download all data from the camera, like images and videos.
 
 This works around the constraint of certain Sony cameras where videos can not be downloaded via WiFi.
+
+<font color="red">⚠</font>  The Web Server exposes the whole file system without authentication to everyone on the same network 
+as the camera. Make sure to run this in a private network, using WiFi direct or by using your 
+Mobile's Hotspot.
 
 # Development
 

@@ -26,24 +26,7 @@ class FilesystemScanner {
     }
 
     public static List<File> getVideosOnExternalStorage() {
-        List<File> ret = getFilteredFileList(Environment.getExternalStorageDirectory(), videoFormats);
-        Iterator<File> iterator = ret.iterator();
-        while (iterator.hasNext()){
-            File file = iterator.next();
-            if (file.length() >= 99 * 1024 * 1024) {
-                iterator.remove();
-            }
-        }
-        return ret;
-    }
-
-    public static boolean isFileAVideo(File file){
-        for(String suffix : videoFormats) {
-            if(file.getName().toLowerCase().endsWith(suffix)){
-                return true;
-            }
-        }
-        return false;
+        return getFilteredFileList(Environment.getExternalStorageDirectory(), videoFormats);
     }
 
     private static List<File> getFilteredFileList(File directory, String... extensions) {

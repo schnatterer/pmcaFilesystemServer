@@ -14,9 +14,9 @@ greatly inspired by the following existing open source PMCA Apps
 
 # Installation 
 
-* Use [Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE) 
-* or through adb.
-* In the future it might be available via [sony-pmca.appspot.com](https://sony-pmca.appspot.com/apps). 
+* Use [Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE), 
+* via [sony-pmca.appspot.com](https://sony-pmca.appspot.com/apps) or 
+* through adb.
 
 # Usage
 
@@ -38,8 +38,8 @@ adb connect 192.168.178.53:5555
 
 See https://stackoverflow.com/a/3623727
 
-For creating a signed release, see https://developer.android.com/studio/publish/app-signing#sign_release  
-Right now, this step is not yet automated using gradle.
+For creating a release, set git tag and then upload an *unsigned* APK to GitHub's release page.
+Signed APKs seem to be denied by Sony-PMCA-RE.
 
 The app writes a log file to the SD card: `/storage/sdcard0/pmcaFilesystemServer/LOG.TXT`.
 

@@ -4,7 +4,6 @@ import android.os.Environment;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /*
@@ -13,20 +12,12 @@ import java.util.List;
  */
 class FilesystemScanner {
 
-    private static final String[] rawFormats = {".arw"};
-    private static final String[] jpegFormats = {".jpg"};
-    private static final String[] videoFormats = {".mts", ".mp4"};
+    public static final String[] rawFormats = {".arw"};
+    public static final String[] jpegFormats = {".jpg"};
+    public static final String[] videoFormats = {".mts", ".mp4"};
 
-    public static List<File> getRawsOnExternalStorage() {
-        return getFilteredFileList(Environment.getExternalStorageDirectory(), rawFormats);
-    }
-
-    public static List<File> getJpegsOnExternalStorage() {
-        return getFilteredFileList(Environment.getExternalStorageDirectory(), jpegFormats);
-    }
-
-    public static List<File> getVideosOnExternalStorage() {
-        return getFilteredFileList(Environment.getExternalStorageDirectory(), videoFormats);
+    public static List<File> getFileOnExternalStorage(String... extensions) {
+        return getFilteredFileList(Environment.getExternalStorageDirectory(), extensions);
     }
 
     private static List<File> getFilteredFileList(File directory, String... extensions) {

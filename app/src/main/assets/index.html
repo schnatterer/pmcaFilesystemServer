@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>pmcaFilesystemServer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script type="text/javascript" src="assets/js/jquery.slim.min.js"></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="assets/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="assets/css/navbar-fixed-right.css"
+    />
+    <link rel="stylesheet" type="text/css" href="assets/css/styles.css" />
+    <script
+      type="text/javascript"
+      src="assets/js/bootstrap.bundle.min.js"
+    ></script>
+
+    <script type="text/javascript" src="assets/js/lazyload.min.js"></script>
+  </head>
+  <body>
+    <!-- Side nav bar -->
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-right">
+      <span class="navbar-brand" id="title">{{title}}</span>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarsExampleDefault"
+        aria-controls="navbarsExampleDefault"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav">
+          <form class="mt-2 mb-4">
+            <span class="navbar-text col-12 p-0">
+              Filter file type:
+            </span>
+            <div class="form-check">
+              <label class="form-check-label navbar-text"
+                ><input
+                  type="checkbox"
+                  class="form-check-input filter-checkbox"
+                  id="image"
+                  checked
+                />
+                Show JPGS</label
+              >
+            </div>
+            <div class="form-check">
+              <label class="form-check-label navbar-text"
+                ><input
+                  type="checkbox"
+                  class="form-check-input filter-checkbox"
+                  id="video"
+                  checked
+                />
+                Show Videos</label
+              >
+            </div>
+            <div class="form-check">
+              <label class="form-check-label navbar-text"
+                ><input
+                  type="checkbox"
+                  class="form-check-input filter-checkbox"
+                  id="raw"
+                  checked
+                />
+                Show RAW</label
+              >
+            </div>
+            <div class="col-12 p-0 mt-1">
+              <button
+                class="btn btn-sm btn-block btn-outline-light my-2 my-sm-0"
+                id="filter"
+                type="button"
+              >
+                Apply filter
+              </button>
+            </div>
+          </form>
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdown"
+              role="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              Jump to date
+            </a>
+            <div
+              class="dropdown-menu scrollable-menu"
+              aria-labelledby="navbarDropdown"
+              id="date-list"
+            ></div>
+          </li>
+
+          <div class="form-group col-12 p-0 mt-4">
+            <a href="#" id="link-logfile" class="text-primary">
+              Open log file
+            </a>
+          </div>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container-fluid mt-2">
+      <div class="row text-lg-left" id="main-gallery"></div>
+    </div>
+
+    <!-- Detail modal -->
+    <div class="modal" tabindex="-1" role="dialog" id="infoModel">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Loading...</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="d-flex align-content-stretch">
+              <div class="p-2 flex-grow-1">
+                <img class="modal-image img-fluid" />
+              </div>
+              <div
+                class="m-2 p-2 modal-detail"
+                style="background: #444444; white-space: nowrap;"
+              ></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+            <a
+              class="btn btn-primary model-link"
+              href="#"
+              target="_blank"
+              download
+              >Download</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.title = "Loading...";
+      const base = "";
+      let meta = {};
+
+      fetch(base + "/api/meta.do").then(async (resp) => {
+        const el = document.getElementById("title");
+        meta = await resp.json();
+        el.innerText = `${meta.brand} ${meta.model}`;
+        $("#link-logfile").attr("href", base + meta.log);
+      });
+
+      const days = [];
+
+      function loadFiles(types) {
+        fetch(base + "/api/list.do?type=" + types).then(async (resp) => {
+          const li = document.getElementById("main-gallery");
+          li.innerHTML = "";
+          const json = await resp.json();
+
+          if (json.length === 0) {
+            li.innerHTML = `
+            <div class="alert alert-danger mx-auto">
+              <strong>No media!</strong> No media found for your current filter.
+            </div>`;
+          }
+
+          days.length = 0;
+          let day = null;
+
+          for (const image of json) {
+            if (day == null || !isSameDay(image.date, day)) {
+              day = new Date(image.date);
+              const id = day.toISOString().substr(0, 10);
+              var template = document.createElement("template");
+              template.innerHTML = `<h4 id="day-${id}" class="col-12 clearfix day-title">${day.toLocaleDateString()}</h4>`;
+              li.append(template.content);
+              days.push({ id: id, text: day.toLocaleDateString() });
+            }
+
+            var template = document.createElement("template");
+            // prettier-ignore
+            template.innerHTML = `
+            <div class="col-lg-2 col-md-4 col-6">
+              <div class="card mb card-link" data-file="${image.file}" data-href="${base}${image.file}">
+                <img data-src="${base}${image.thumbnail}" class="card-img-top img-fluid lazy" alt="${image.name}">
+                <div class="card-body">
+                  <h5 class="card-title text-info">${image.name}</h5>
+                  <p class="card-text">${new Date(image.date).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+            `;
+            li.append(template.content);
+          }
+
+          // Days to sidebar
+          const dateLi = document.getElementById("date-list");
+          dateLi.innerHTML = "";
+          var template = document.createElement("template");
+          for (const day of days) {
+            // prettier-ignore
+            template.innerHTML = `<a class="dropdown-item" href="#day-${day.id}">${day.text}</a>`;
+            dateLi.append(template.content);
+          }
+
+          $("body").scrollspy({ target: "#date-list" });
+
+          var lazyLoadInstance = new LazyLoad({});
+
+          document.title = `${json.length} images - ${meta.brand} ${meta.model}`;
+        });
+      }
+
+      function onFilterChanged() {
+        let filter = "";
+        $(".filter-checkbox:checked").each(function (el) {
+          filter += $(this).attr("id") + ",";
+        });
+        loadFiles(filter);
+      }
+
+      onFilterChanged();
+
+      $("#filter").click(function () {
+        onFilterChanged();
+      });
+
+      function isSameDay(day, date) {
+        return (
+          new Date(day).toISOString().substr(0, 10) ===
+          date.toISOString().substr(0, 10)
+        );
+      }
+
+      $(document).on("click", ".card-link", function (event) {
+        $("#infoModel").data("file", $(this).data("file"));
+        $("#infoModel").data("href", $(this).data("href"));
+        $("#infoModel").modal("show");
+      });
+
+      $("#infoModel").on("show.bs.modal", function (event) {
+        const modal = $(this);
+
+        modal.find(".modal-image").attr("src", "");
+        modal.find(".model-link").attr("href", "");
+        modal.find(".model-link").attr("download", "");
+        modal.find(".modal-title").text("Loading...");
+        modal.find(".modal-detail").text("");
+
+        const file = $(this).data("file");
+        const link = $(this).data("href");
+        fetch(base + "/api/exif.do?f=" + file).then(async (resp) => {
+          const json = await resp.json();
+          console.log(json);
+
+          modal.find(".modal-image").attr("src", link);
+          modal.find(".model-link").attr("href", link);
+          modal.find(".model-link").attr("download", json.Name);
+          modal.find(".modal-title").text(json.Name);
+
+          let detail = `
+          ${json.Make} ${json.Model}<br /><br />
+          ${json.DateTime}<br /><br />
+          ƒ/${json.FNumber}<br />
+          1/${Math.floor(1 / json.ExposureTime)}<br />
+          ${json.FocalLength}<br />
+          ISO ${json.ISOSpeedRatings}<br />
+          `;
+          modal.find(".modal-detail").html(detail);
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -32,4 +32,5 @@ dependencies {
     compile 'com.github.ma1co.OpenMemories-Framework:framework:f8df350'
     provided 'com.github.ma1co.OpenMemories-Framework:stubs:f8df350'
     compile 'org.nanohttpd:nanohttpd-webserver:2.3.1'
+    compile 'com.drewnoakes:metadata-extractor:2.14.0'
 }

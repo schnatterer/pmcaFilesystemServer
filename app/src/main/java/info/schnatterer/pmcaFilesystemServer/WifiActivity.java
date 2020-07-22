@@ -52,7 +52,7 @@ public class WifiActivity extends BaseActivity {
             }
         };
 
-        httpServer = new HttpServer();
+        httpServer = new HttpServer(this);
     }
 
     @Override

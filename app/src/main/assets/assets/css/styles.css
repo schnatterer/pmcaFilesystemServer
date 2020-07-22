@@ -1,0 +1,47 @@
+.card-body {
+  padding: 0.5rem;
+}
+.card-title {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+}
+.day-title {
+  border-top: 2px solid #888;
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+}
+.day-title:first-child {
+  border-top: none;
+  margin-top: 0;
+}
+.card-link {
+  cursor: pointer;
+}
+.card-link:hover {
+  background: #444;
+}
+
+.col-lg-2 {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.card.mb {
+  margin-bottom: 5px;
+}
+
+.scrollable-menu {
+  height: auto;
+  max-height: 400px;
+  overflow-x: hidden;
+}
+
+.navbar-dark .navbar-text {
+  color: #fff;
+}
+
+.navbar-text {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}

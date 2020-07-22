@@ -45,6 +45,8 @@ public class HttpServer extends SimpleWebServer {
             "ISOSpeedRatings",
             "Orientation",
             "Flash",
+            "ImageWidth",
+            "ImageLength",
     };
 
     static final int PORT = 8080;
@@ -168,6 +170,7 @@ public class HttpServer extends SimpleWebServer {
         JSONObject e = new JSONObject();
         try {
             e.put("Name", new File(imagePath).getName());
+            e.put("LastModified", new File(imagePath).lastModified());
             for(String key : EXIF_TAGS) {
                 e.put(key, exif.getAttribute(key));
             }

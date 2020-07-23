@@ -78,9 +78,7 @@ public class HttpServer extends SimpleWebServer {
             response = super.serve(session);
         }
         if(BuildConfig.DEBUG) {
-            if(response.getMimeType().equals(MIME_JSON)) {
-                response.addHeader("Access-Control-Allow-Origin", "*");
-            }
+            response.addHeader("Access-Control-Allow-Origin", "*");
         }
         return response;
     }

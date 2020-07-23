@@ -18,10 +18,15 @@
 .card {
   overflow: hidden;
 }
+.card-img,
+.card-img-top,
+.card {
+  border-radius: 0;
+}
 .card-link {
   cursor: pointer;
 }
-.card-link:hover {
+.card-body:hover {
   background: #444;
 }
 
@@ -67,4 +72,16 @@
 .modal-detail p {
   margin-bottom: 0.25rem;
   line-height: 1;
+}
+
+#zip-log {
+  overflow: auto;
+  max-height: 500px;
+}
+
+.card-link .form-check-input,
+.day-title .form-check-input {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0;
 }

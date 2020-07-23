@@ -194,6 +194,8 @@ public class HttpServer extends SimpleWebServer {
                 mime = MIME_CSS;
             } else if(path.endsWith(".js")) {
                 mime = MIME_JAVASCRIPT;
+            } else if(path.endsWith(".jpg") || path.endsWith(".jpeg")) {
+                mime = MIME_JPEG;
             }
 
             InputStream is = context.getAssets().open(path);
@@ -249,6 +251,15 @@ public class HttpServer extends SimpleWebServer {
                 return res;
             } catch (IOException e) {
                 e.printStackTrace();
+                return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, e.getMessage());
+            }
+        }
+
+        if (Arrays.asList(FilesystemScanner.videoFormats).contains("." + ext.toLowerCase())) {
+            try {
+                InputStream is = context.getAssets().open("assets/img/video-fallback.jpg");
+                return newFixedLengthResponse(Response.Status.OK, MIME_JPEG, is, is.available());
+            } catch (IOException e) {
                 return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, e.getMessage());
             }
         }

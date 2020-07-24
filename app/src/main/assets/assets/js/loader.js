@@ -12,9 +12,10 @@ fetch(base + "/api/meta.do").then(async (resp) => {
 const days = [];
 
 function loadFiles(types) {
+  document.title = "Loading...";
+  const li = document.getElementById("main-gallery");
+  li.innerHTML = "";
   fetch(base + "/api/list.do?type=" + types).then(async (resp) => {
-    const li = document.getElementById("main-gallery");
-    li.innerHTML = "";
     const json = await resp.json();
 
     if (json.length === 0) {
@@ -110,7 +111,7 @@ $("#filter").click(function () {
 });
 
 $(document).on("click", ".card-img-top", function (event) {
-  const el = $(this).parents('.card-link').find(".form-check-input");
+  const el = $(this).parents(".card-link").find(".form-check-input");
   el.prop("checked", !el.prop("checked"));
   el.trigger("change");
 });

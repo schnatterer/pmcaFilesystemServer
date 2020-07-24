@@ -10,6 +10,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.ExifThumbnailDirectory;
 import com.github.ma1co.openmemories.framework.DeviceInfo;
@@ -25,7 +26,6 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -153,7 +153,10 @@ public class HttpServer extends SimpleWebServer {
             exif.put("LastModified", new File(imagePath).lastModified());
 
             Metadata metadata = ImageMetadataReader.readMetadata(new File(imagePath));
-            Collection<ExifSubIFDDirectory> directories = metadata.getDirectoriesOfType(ExifSubIFDDirectory.class);
+
+            ArrayList<Directory> directories = new ArrayList<>();
+            directories.addAll(metadata.getDirectoriesOfType(ExifIFD0Directory.class));
+            directories.addAll(metadata.getDirectoriesOfType(ExifSubIFDDirectory.class));
             if(directories.size() == 0) {
                 throw new MetadataException("No entries for ExifSubIFDDirectory found");
             }
@@ -175,6 +178,15 @@ public class HttpServer extends SimpleWebServer {
                 }
                 if(directory.containsTag(ExifSubIFDDirectory.TAG_ISO_EQUIVALENT)) {
                     exif.put("ISOSpeedRatings", directory.getInt(ExifSubIFDDirectory.TAG_ISO_EQUIVALENT));
+                }
+                if(directory.containsTag(ExifIFD0Directory.TAG_MODEL)) {
+                    exif.put("Model", directory.getDescription(ExifSubIFDDirectory.TAG_MODEL));
+                }
+                if(directory.containsTag(ExifSubIFDDirectory.TAG_LENS_MODEL)) {
+                    exif.put("LensModel", directory.getDescription(ExifSubIFDDirectory.TAG_LENS_MODEL));
+                }
+                if(directory.containsTag(ExifSubIFDDirectory.TAG_LENS_SPECIFICATION)) {
+                    exif.put("LensSpecification", directory.getDescription(ExifSubIFDDirectory.TAG_LENS_SPECIFICATION));
                 }
             }
 

@@ -26,22 +26,15 @@ $("#infoModel").on("show.bs.modal", function (event) {
         modal.find(".model-link").attr("download", json.Name);
         modal.find(".modal-title").text(json.Name);
 
-        let focalLength = json.FocalLength;
-        if (focalLength && focalLength.includes("/")) {
-            let t = focalLength.split("/");
-            if (t.length === 2) {
-                focalLength = parseInt(t[0]) / parseInt(t[1]);
-            }
-        }
-
         // prettier-ignore
         let detail = `
         <p><i class="icon-camera"></i> ${json.Model}</p>
+        <p><i class="icon-camera"></i> ${json.LensSpecification}</p>
         <p><i class="icon-screen"></i> ${new Date(json.LastModified).toLocaleString()}</p>
         <p class="mb-3"><i class="icon-storage"></i> ${Math.round((json.ImageWidth * json.ImageLength) / 1000000)} MP ${json.ImageWidth} × ${json.ImageLength}</p>
-        <p><i class="icon-aperture"></i> ƒ/${json.FNumber}</p>
-        <p><i class="icon-speed"></i> 1/${Math.floor(1 / json.ExposureTime)}</p>
-        <p><i class="icon-focal"></i> ${focalLength}&nbsp;mm</p>
+        <p><i class="icon-aperture"></i> ${json.FNumber}</p>
+        <p><i class="icon-speed"></i> ${json.ExposureTime}</p>
+        <p><i class="icon-focal"></i> ${json.FocalLength}&nbsp;mm</p>
         <p><i class="icon-iso"></i> ${json.ISOSpeedRatings}</p>
         `;
         modal.find(".modal-detail").html(detail);

@@ -6,7 +6,11 @@ import android.media.ExifInterface;
 import android.text.TextUtils;
 
 import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.ExifThumbnailDirectory;
 import com.github.ma1co.openmemories.framework.DeviceInfo;
 
@@ -21,6 +25,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -34,20 +39,6 @@ public class HttpServer extends SimpleWebServer {
     private static final String MIME_CSS = "text/css";
     private static final String MIME_JAVASCRIPT = "text/javascript";
     private static final String MIME_JPEG = "image/jpeg";
-
-    private static final String[] EXIF_TAGS = new String[] {
-            "Make",
-            "Model",
-            "DateTime",
-            "FNumber",
-            "ExposureTime",
-            "FocalLength",
-            "ISOSpeedRatings",
-            "Orientation",
-            "Flash",
-            "ImageWidth",
-            "ImageLength",
-    };
 
     static final int PORT = 8080;
     static final String HOST = null; // bind to all interfaces by default
@@ -64,40 +55,42 @@ public class HttpServer extends SimpleWebServer {
     @Override
     public Response serve(IHTTPSession session) {
         Response response;
-        if (session.getUri().equals("/") || session.getUri().startsWith("/assets/")) {
-            response = serveAssets(session);
-        } else if (session.getUri().equals("/thumbnail.do")) {
-            response = generateThumbnail(session);
-        } else if (session.getUri().equals("/api/list.do")) {
-            response = serveList(session);
-        } else if (session.getUri().equals("/api/meta.do")) {
-            response = serveMeta();
-        } else if (session.getUri().equals("/api/exif.do")) {
-            response = serveExif(session);
-        } else {
-            response = super.serve(session);
+        try {
+            if (session.getUri().equals("/") || session.getUri().startsWith("/assets/")) {
+                response = serveAssets(session);
+            } else if (session.getUri().equals("/thumbnail.do")) {
+                response = generateThumbnail(session);
+            } else if (session.getUri().equals("/api/list.do")) {
+                response = serveList(session);
+            } else if (session.getUri().equals("/api/meta.do")) {
+                response = serveMeta();
+            } else if (session.getUri().equals("/api/exif.do")) {
+                response = serveExif(session);
+            } else {
+                response = super.serve(session);
+            }
+            if (BuildConfig.DEBUG) {
+                response.addHeader("Access-Control-Allow-Origin", "*");
+            }
+            return response;
+        } catch (Exception e) {
+            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, e.getMessage());
         }
-        if(BuildConfig.DEBUG) {
-            response.addHeader("Access-Control-Allow-Origin", "*");
-        }
-        return response;
     }
 
-    private Response serveMeta() {
+    private Response serveMeta() throws JSONException {
         JSONObject meta = new JSONObject();
-        try {
-            meta.put("brand", getDeviceInfo().getBrand());
-            meta.put("model", getDeviceInfo().getModel());
-            meta.put("log", getLinkToLogFile());
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-        }
-
+        meta.put("brand", getDeviceInfo().getBrand());
+        meta.put("model", getDeviceInfo().getModel());
+        meta.put("log", getLinkToLogFile());
         return newFixedLengthResponse(Response.Status.OK, MIME_JSON, meta.toString());
     }
 
-    private Response serveList(IHTTPSession session) {
+    private Response serveList(IHTTPSession session) throws JSONException {
         Map<String, List<String>> query = decodeParameters(session.getQueryParameterString());
+        if(query.get("type") == null) {
+            return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "Missing query parameter \"type\"");
+        }
         String queryType = query.get("type").get(0);
         List<String> types = new ArrayList<>();
         if (queryType.contains(",")) {
@@ -133,19 +126,15 @@ public class HttpServer extends SimpleWebServer {
         });
 
         JSONArray list = new JSONArray();
-        try {
-            for (File file : fileList) {
-                JSONObject e = new JSONObject();
-                e.put("name", file.getName());
-                e.put("size", file.length());
-                e.put("date", file.lastModified());
-                e.put("file", file.getPath());
-                e.put("thumbnail", "/thumbnail.do?f=" + file.getPath());
+        for (File file : fileList) {
+            JSONObject e = new JSONObject();
+            e.put("name", file.getName());
+            e.put("size", file.length());
+            e.put("date", file.lastModified());
+            e.put("file", file.getPath());
+            e.put("thumbnail", "/thumbnail.do?f=" + file.getPath());
 
-                list.put(e);
-            }
-        } catch (JSONException ex) {
-            ex.printStackTrace();
+            list.put(e);
         }
 
         return newFixedLengthResponse(Response.Status.OK, MIME_JSON, list.toString());
@@ -153,30 +142,48 @@ public class HttpServer extends SimpleWebServer {
 
     private Response serveExif(IHTTPSession session) {
         Map<String, List<String>> query = decodeParameters(session.getQueryParameterString());
+        if(query.get("f") == null) {
+            return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "Missing query parameter \"f\"");
+        }
         String imagePath = query.get("f").get(0);
 
-        // TODO Use metadata-extractor to read EXIF for RAW/ARW files
-
-        ExifInterface exif;
         try {
-            exif = new ExifInterface(imagePath);
+            JSONObject exif = new JSONObject();
+            exif.put("Name", new File(imagePath).getName());
+            exif.put("LastModified", new File(imagePath).lastModified());
+
+            Metadata metadata = ImageMetadataReader.readMetadata(new File(imagePath));
+            Collection<ExifSubIFDDirectory> directories = metadata.getDirectoriesOfType(ExifSubIFDDirectory.class);
+            if(directories.size() == 0) {
+                throw new MetadataException("No entries for ExifSubIFDDirectory found");
+            }
+            for (Directory directory : directories) {
+                if(directory.containsTag(ExifSubIFDDirectory.TAG_FNUMBER)) {
+                    exif.put("FNumber", directory.getDescription(ExifSubIFDDirectory.TAG_FNUMBER));
+                }
+                if(directory.containsTag(ExifSubIFDDirectory.TAG_FOCAL_LENGTH)) {
+                    exif.put("FocalLength", directory.getInt(ExifSubIFDDirectory.TAG_FOCAL_LENGTH));
+                }
+                if(directory.containsTag(ExifSubIFDDirectory.TAG_EXPOSURE_TIME)) {
+                    exif.put("ExposureTime", directory.getDescription(ExifSubIFDDirectory.TAG_EXPOSURE_TIME));
+                }
+                if(directory.containsTag(ExifSubIFDDirectory.TAG_EXIF_IMAGE_WIDTH)) {
+                    exif.put("ImageWidth", directory.getInt(ExifSubIFDDirectory.TAG_EXIF_IMAGE_WIDTH));
+                }
+                if(directory.containsTag(ExifSubIFDDirectory.TAG_EXIF_IMAGE_HEIGHT)) {
+                    exif.put("ImageLength", directory.getInt(ExifSubIFDDirectory.TAG_EXIF_IMAGE_HEIGHT));
+                }
+                if(directory.containsTag(ExifSubIFDDirectory.TAG_ISO_EQUIVALENT)) {
+                    exif.put("ISOSpeedRatings", directory.getInt(ExifSubIFDDirectory.TAG_ISO_EQUIVALENT));
+                }
+            }
+
+            return newFixedLengthResponse(Response.Status.OK, MIME_JSON, exif.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, e.getMessage());
+        } catch (JSONException | ImageProcessingException | MetadataException e) {
             return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, e.getMessage());
         }
-
-        JSONObject e = new JSONObject();
-        try {
-            e.put("Name", new File(imagePath).getName());
-            e.put("LastModified", new File(imagePath).lastModified());
-            for(String key : EXIF_TAGS) {
-                e.put(key, exif.getAttribute(key));
-            }
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-        }
-
-        return newFixedLengthResponse(Response.Status.OK, MIME_JSON, e.toString());
     }
 
     private Response serveAssets(IHTTPSession session) {
@@ -207,6 +214,10 @@ public class HttpServer extends SimpleWebServer {
 
     private Response generateThumbnail(IHTTPSession session) {
         Map<String, List<String>> query = decodeParameters(session.getQueryParameterString());
+        if(query.get("f") == null) {
+            return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "Missing query parameter \"f\"");
+        }
+
         String imagePath = query.get("f").get(0);
         File imageFile = new File(imagePath);
 
@@ -225,8 +236,8 @@ public class HttpServer extends SimpleWebServer {
                 }
                 ByteArrayInputStream bs = new ByteArrayInputStream(buffer);
                 return newFixedLengthResponse(Response.Status.OK, MIME_JPEG, bs, buffer.length);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ignored) {
+
             }
 
             // As a fallback, see if we have a JPEG file with the same name and use that
@@ -250,7 +261,6 @@ public class HttpServer extends SimpleWebServer {
                 res.addHeader("Accept-Ranges", "bytes");
                 return res;
             } catch (IOException e) {
-                e.printStackTrace();
                 return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, e.getMessage());
             }
         }
@@ -280,8 +290,7 @@ public class HttpServer extends SimpleWebServer {
             handle.readFully(buffer);
 
             return buffer;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
         return null;
     }

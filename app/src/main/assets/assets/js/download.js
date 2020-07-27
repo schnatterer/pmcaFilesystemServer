@@ -6,9 +6,12 @@ $(document).on("change", ".checkbox-download-day", function (event) {
 
 $(document).on("change", ".checkbox-download", function (event) {
     if ($(".checkbox-download:checked").length > 0) {
-        $("#download").text(
-            "Download " + $(".checkbox-download:checked").length + " files"
-        );
+        let size = 0;
+        $(".checkbox-download:checked").each(function () {
+            const el = $(this).parents(".card-link");
+            size += parseInt(el.data("size"));
+        });
+        $("#download").text(`Download ${$(".checkbox-download:checked").length} files - ${bytesToSize(size)}`);
         $("#download").show();
     } else {
         $("#download").hide();
@@ -91,6 +94,7 @@ function appendZipLog(message) {
     el.append(message + "\n");
     el.scrollTop(el.prop("scrollHeight"));
 }
+
 function updateZipProgress(total, started, finished, compressing) {
     const percent = (started / total) * 0.45 + (finished / total) * 0.45;
     $("#zip-progress").css("width", percent * 100 + "%");
@@ -103,4 +107,11 @@ function updateZipProgress(total, started, finished, compressing) {
             "progress-bar-striped progress-bar-animated"
         );
     }
+}
+
+function bytesToSize(bytes) {
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes == 0) return '0 Byte';
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 }

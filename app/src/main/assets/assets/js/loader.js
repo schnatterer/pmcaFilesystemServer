@@ -49,7 +49,7 @@ function loadFiles(types) {
       // prettier-ignore
       template.innerHTML = `
             <div class="col-lg-2 col-md-4 col-6">
-              <div class="card mb card-link" data-name="${image.name}" data-file="${image.file}" data-href="${base}${image.file}" data-day="${dayId}">
+              <div class="card mb card-link" data-name="${image.name}" data-file="${image.file}" data-size="${image.size}" data-href="${base}${image.file}" data-day="${dayId}">
                 <div class="form-check position-absolute">
                   <input class="form-check-input position-static checkbox-download" type="checkbox" id="blankCheckbox" value="option1">
                 </div>

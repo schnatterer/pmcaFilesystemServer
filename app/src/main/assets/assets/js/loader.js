@@ -110,12 +110,6 @@ $("#filter").click(function () {
   onFilterChanged();
 });
 
-$(document).on("click", ".card-img-top", function (event) {
-  const el = $(this).parents(".card-link").find(".form-check-input");
-  el.prop("checked", !el.prop("checked"));
-  el.trigger("change");
-});
-
 function isSameDay(day, date) {
   return (
     new Date(day).toISOString().substr(0, 10) ===

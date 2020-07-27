@@ -1,10 +1,19 @@
-$(document).on("click", ".card-body", function (event) {
+$(document).on("click", ".card-link", function (event) {
     if (event.target.tagName === "INPUT") {
         return;
     }
-    $("#infoModel").data("file", $(this).parents('.card-link').data("file"));
-    $("#infoModel").data("href", $(this).parents('.card-link').data("href"));
-    $("#infoModel").modal("show");
+
+    if ($(".checkbox-download:checked").length == 0 || $(event.target).parents('.card-body').length > 0) {
+        // If we haven't checked a download box or click the card-body, we open the modal
+        $("#infoModel").data("file", $(this).data("file"));
+        $("#infoModel").data("href", $(this).data("href"));
+        $("#infoModel").modal("show");
+    } else {
+        // If a download box is checked and we click on the image, we check to download box instead of showing the modal
+        const el = $(this).find(".form-check-input");
+        el.prop("checked", !el.prop("checked"));
+        el.trigger("change");
+    }
 });
 
 $("#infoModel").on("show.bs.modal", function (event) {

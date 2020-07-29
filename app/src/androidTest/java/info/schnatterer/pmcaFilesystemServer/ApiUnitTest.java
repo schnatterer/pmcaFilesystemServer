@@ -1,5 +1,7 @@
 package info.schnatterer.pmcaFilesystemServer;
 
+import android.Manifest;
+import android.support.test.rule.GrantPermissionRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
@@ -8,6 +10,7 @@ import junit.framework.Assert;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -15,6 +18,9 @@ import okhttp3.Response;
 
 @RunWith(AndroidJUnit4.class)
 public class ApiUnitTest extends BaseHttpTest {
+
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
     @Test
     public void get_meta() {
@@ -47,6 +53,7 @@ public class ApiUnitTest extends BaseHttpTest {
         }
 
         Assert.assertNotNull(json);
+        Assert.assertTrue(json.length() > 0);
     }
 
     @Test
@@ -60,6 +67,7 @@ public class ApiUnitTest extends BaseHttpTest {
         }
 
         Assert.assertNotNull(json);
+        Assert.assertTrue(json.length() > 0);
     }
 
     @Test
@@ -73,6 +81,7 @@ public class ApiUnitTest extends BaseHttpTest {
         }
 
         Assert.assertNotNull(json);
+        Assert.assertTrue(json.length() > 0);
     }
 
     @Test
@@ -116,8 +125,8 @@ public class ApiUnitTest extends BaseHttpTest {
         Assert.assertNotSame(0, json.optInt("ImageWidth"));
         Assert.assertNotSame(0, json.optInt("ImageLength"));
         Assert.assertNotNull(json.optString("FNumber"));
-        Assert.assertNotSame(0, json.optInt("FocalLength"));
-        Assert.assertNotSame(0, json.optInt("ISOSpeedRatings"));
+        Assert.assertNotSame(-1, json.optInt("FocalLength", -1));
+        Assert.assertNotSame(-1, json.optInt("ISOSpeedRatings", -1));
         Assert.assertNotNull(json.optString("ExposureTime"));
     }
 
@@ -141,8 +150,8 @@ public class ApiUnitTest extends BaseHttpTest {
         Assert.assertNotSame(0, json.optInt("ImageWidth"));
         Assert.assertNotSame(0, json.optInt("ImageLength"));
         Assert.assertNotNull(json.optString("FNumber"));
-        Assert.assertNotSame(0, json.optInt("FocalLength"));
-        Assert.assertNotSame(0, json.optInt("ISOSpeedRatings"));
+        Assert.assertNotSame(-1, json.optInt("FocalLength", -1));
+        Assert.assertNotSame(-1, json.optInt("ISOSpeedRatings", -1));
         Assert.assertNotNull(json.optString("ExposureTime"));
     }
 

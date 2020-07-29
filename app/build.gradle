@@ -1,3 +1,5 @@
+import com.android.ddmlib.AndroidDebugBridge
+
 apply plugin: 'com.android.application'
 
 android {
@@ -19,8 +21,14 @@ android {
         targetSdkVersion 23
         versionCode 2
         versionName "0.1.1-SNAPSHOT"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug {
+            testCoverageEnabled true
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -36,4 +44,11 @@ dependencies {
     provided 'com.github.ma1co.OpenMemories-Framework:stubs:f8df350'
     compile 'org.nanohttpd:nanohttpd-webserver:2.3.1'
     compile 'com.drewnoakes:metadata-extractor:2.14.0'
+
+    testCompile 'junit:junit:4.12'
+
+    androidTestCompile 'com.android.support.test:runner:1.0.2'
+    androidTestCompile 'com.android.support.test:rules:1.0.2'
+    //noinspection GradleDependency - newer versions don't work on Android 4.X
+    androidTestCompile 'com.squareup.okhttp3:okhttp:3.4.1'
 }

@@ -149,7 +149,7 @@ public class HttpServer extends SimpleWebServer {
         return newFixedLengthResponse(Response.Status.OK, MIME_JSON, list.toString());
     }
 
-    private Response serveExif(IHTTPSession session) {
+    private Response serveExif(IHTTPSession session) throws JSONException {
         Map<String, List<String>> query = decodeParameters(session.getQueryParameterString());
         if(query.get("f") == null) {
             return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "Missing query parameter \"f\"");
@@ -157,10 +157,11 @@ public class HttpServer extends SimpleWebServer {
         String imagePath = query.get("f").get(0);
         File imageFile = new File(imagePath);
 
+        JSONObject exif = new JSONObject();
         try {
-            JSONObject exif = new JSONObject();
             exif.put("Name", new File(imagePath).getName());
             exif.put("LastModified", new File(imagePath).lastModified());
+            exif.put("success", true);
 
             // If the file is ARW, we can't display it in the browser
             // so check if we have a jpg with the same file name we can show instead
@@ -173,6 +174,8 @@ public class HttpServer extends SimpleWebServer {
                 } else {
                     exif.put("preview", "/thumbnail.do?f=" + imageFile.getPath());
                 }
+            } else if (Arrays.asList(FilesystemScanner.videoFormats).contains("." + fileExt.toLowerCase())) {
+                exif.put("preview", "/assets/img/video-fallback.jpg");
             }
 
             Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
@@ -213,12 +216,13 @@ public class HttpServer extends SimpleWebServer {
                 }
             }
 
-            return newFixedLengthResponse(Response.Status.OK, MIME_JSON, exif.toString());
+        } catch (ImageProcessingException | MetadataException e) {
+            exif.put("success", false);
         } catch (IOException e) {
             return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, e.getMessage());
-        } catch (JSONException | ImageProcessingException | MetadataException e) {
-            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, e.getMessage());
         }
+
+        return newFixedLengthResponse(Response.Status.OK, MIME_JSON, exif.toString());
     }
 
     private Response serveAssets(IHTTPSession session) {

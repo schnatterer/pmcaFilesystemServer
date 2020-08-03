@@ -31,6 +31,12 @@ $("#infoModel").on("show.bs.modal", function (event) {
   const file = $(this).data("file");
   const link = $(this).data("href");
   fetch(base + "/api/exif.do?f=" + file).then(async (resp) => {
+    if (!resp.ok) {
+      const body = await resp.text();
+      modal.modal("hide");
+      alert(`Error: ${body}`);
+      return;
+    }
     const json = await resp.json();
 
     let preview = link;
@@ -41,9 +47,9 @@ $("#infoModel").on("show.bs.modal", function (event) {
     modal.find(".model-link").attr("href", link);
     modal.find(".model-link").attr("download", json.Name);
     modal.find(".modal-title").text(json.Name);
-
-    // prettier-ignore
-    let detail = `
+    if (json.success) {
+      // prettier-ignore
+      let detail = `
         <p><i class="icon-camera"></i> ${json.Model}</p>
         <p><i class="icon-camera"></i> ${json.LensSpecification}</p>
         <p><i class="icon-screen"></i> ${new Date(json.LastModified).toLocaleString()}</p>
@@ -53,6 +59,9 @@ $("#infoModel").on("show.bs.modal", function (event) {
         <p><i class="icon-focal"></i> ${json.FocalLength}&nbsp;mm</p>
         <p><i class="icon-iso"></i> ${json.ISOSpeedRatings}</p>
         `;
-    modal.find(".modal-detail").html(detail);
+      modal.find(".modal-detail").html(detail);
+    } else {
+      modal.find(".modal-detail").text(`Failed to load EXIF for ${json.Name}`);
+    }
   });
 });

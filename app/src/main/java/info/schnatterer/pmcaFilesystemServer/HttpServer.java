@@ -132,7 +132,16 @@ public class HttpServer extends SimpleWebServer {
             e.put("size", file.length());
             e.put("date", file.lastModified());
             e.put("file", file.getPath());
+            e.put("preview", file.getPath());
+            e.put("type", "image");
             e.put("thumbnail", "/thumbnail.do?f=" + file.getPath());
+
+            String fileExt = file.getName().substring(file.getName().lastIndexOf(".") + 1);
+            if (fileExt.equalsIgnoreCase("ARW")) {
+                e.put("type", "raw");
+            } else if (Arrays.asList(FilesystemScanner.videoFormats).contains("." + fileExt.toLowerCase())) {
+                e.put("type", "video");
+            }
 
             list.put(e);
         }
@@ -146,13 +155,27 @@ public class HttpServer extends SimpleWebServer {
             return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "Missing query parameter \"f\"");
         }
         String imagePath = query.get("f").get(0);
+        File imageFile = new File(imagePath);
 
         try {
             JSONObject exif = new JSONObject();
             exif.put("Name", new File(imagePath).getName());
             exif.put("LastModified", new File(imagePath).lastModified());
 
-            Metadata metadata = ImageMetadataReader.readMetadata(new File(imagePath));
+            // If the file is ARW, we can't display it in the browser
+            // so check if we have a jpg with the same file name we can show instead
+            // If not, we use the thumbnail so we can show anything
+            String fileExt = imageFile.getName().substring(imageFile.getName().lastIndexOf(".") + 1);
+            if (fileExt.equalsIgnoreCase("ARW")) {
+                File jpgFile = new File(imageFile.getParentFile(), imageFile.getName().substring(0, imageFile.getName().lastIndexOf(".")) + ".JPG");
+                if (jpgFile.exists()) {
+                    exif.put("preview", jpgFile.getPath());
+                } else {
+                    exif.put("preview", "/thumbnail.do?f=" + imageFile.getPath());
+                }
+            }
+
+            Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
 
             ArrayList<Directory> directories = new ArrayList<>();
             directories.addAll(metadata.getDirectoriesOfType(ExifIFD0Directory.class));

@@ -3,7 +3,6 @@ package info.schnatterer.pmcaFilesystemServer;
 import android.Manifest;
 import android.support.test.rule.GrantPermissionRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
 
 import junit.framework.Assert;
 
@@ -13,6 +12,8 @@ import org.json.JSONObject;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.IOException;
 
 import okhttp3.Response;
 
@@ -112,7 +113,6 @@ public class ApiUnitTest extends BaseHttpTest {
         JSONObject json = null;
         try {
             json = new JSONObject(body);
-            Log.i("API", "exif_raw: " + json.toString(2));
         } catch (JSONException ignored) {
 
         }
@@ -137,7 +137,6 @@ public class ApiUnitTest extends BaseHttpTest {
         JSONObject json = null;
         try {
             json = new JSONObject(body);
-            Log.i("API", "exif_jpg: " + json.toString(2));
         } catch (JSONException ignored) {
 
         }
@@ -175,8 +174,25 @@ public class ApiUnitTest extends BaseHttpTest {
     public void exif_bad_file() {
         Response response = apiGetResponse("/api/exif.do?f=/default.prop");
         Assert.assertNotNull(response);
+        Assert.assertTrue(response.isSuccessful());
+
+        JSONObject json = null;
+        try {
+            json = new JSONObject(response.body().string());
+        } catch (JSONException | IOException ignored) {
+
+        }
+
+        Assert.assertNotNull(json);
+        Assert.assertFalse(json.optBoolean("success", true));
+    }
+
+    @Test
+    public void exif_missing_file() {
+        Response response = apiGetResponse("/api/exif.do?f=/does-not-exist.txt");
+        Assert.assertNotNull(response);
         Assert.assertFalse(response.isSuccessful());
-        Assert.assertEquals(500, response.code());
+        Assert.assertEquals(404, response.code());
     }
 
     @Test
@@ -200,7 +216,6 @@ public class ApiUnitTest extends BaseHttpTest {
     @Test
     public void thumbnail_video() {
         Response response = apiGetResponse("/thumbnail.do?f=" + getFileOfType("video"));
-        Log.i("API", "thumbnail_video: " + response);
         Assert.assertNotNull(response);
         Assert.assertTrue(response.isSuccessful());
         Assert.assertEquals("image/jpeg", response.header("Content-Type"));

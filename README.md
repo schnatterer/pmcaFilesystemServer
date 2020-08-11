@@ -31,6 +31,9 @@ Mobile's Hotspot.
 
 # Development
 
+Build requires JDK 8.
+
+## Connect to device 
 ```bash
 adb tcpip 5555
 adb connect 192.168.178.53:5555

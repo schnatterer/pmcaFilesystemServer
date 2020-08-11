@@ -1,105 +1,80 @@
 package info.schnatterer.pmcaFilesystemServer;
 
-import android.Manifest;
-import android.support.test.rule.GrantPermissionRule;
-import android.support.test.runner.AndroidJUnit4;
-
+import android.media.ExifInterface;
 import junit.framework.Assert;
-
+import okhttp3.Response;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.annotation.Implementation;
+import org.robolectric.annotation.Implements;
 
-import java.io.IOException;
-
-import okhttp3.Response;
-
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
 public class ApiUnitTest extends BaseHttpTest {
 
-    @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
     @Test
-    public void get_meta() {
+    public void get_meta() throws Exception {
         String body = apiGet("/api/meta.do");
         Assert.assertNotNull(body);
     }
 
     @Test
-    public void list_empty() {
+    public void list_empty() throws Exception {
         String body = apiGet("/api/list.do?type=none");
 
-        JSONArray json = null;
-        try {
-            json = new JSONArray(body);
-        } catch (JSONException ignored) {
-        }
+        JSONArray json = new JSONArray(body);
 
         Assert.assertNotNull(json);
         Assert.assertEquals(0, json.length());
     }
 
     @Test
-    public void list_image() {
+    public void list_image() throws Exception {
+        setupFile(TestFile.JPG);
         String body = apiGet("/api/list.do?type=image");
 
-        JSONArray json = null;
-        try {
-            json = new JSONArray(body);
-        } catch (JSONException ignored) {
-        }
+        JSONArray json = new JSONArray(body);
 
         Assert.assertNotNull(json);
         Assert.assertTrue(json.length() > 0);
     }
 
     @Test
-    public void list_raw() {
+    public void list_raw() throws Exception {
+        setupFile(TestFile.RAW);
         String body = apiGet("/api/list.do?type=raw");
 
-        JSONArray json = null;
-        try {
-            json = new JSONArray(body);
-        } catch (JSONException ignored) {
-        }
+        JSONArray json = new JSONArray(body);
 
         Assert.assertNotNull(json);
         Assert.assertTrue(json.length() > 0);
     }
 
     @Test
-    public void list_video() {
+    public void list_video() throws Exception {
+        setupFile(TestFile.VIDEO);
         String body = apiGet("/api/list.do?type=video");
 
-        JSONArray json = null;
-        try {
-            json = new JSONArray(body);
-        } catch (JSONException ignored) {
-        }
+        JSONArray json = new JSONArray(body);
 
         Assert.assertNotNull(json);
         Assert.assertTrue(json.length() > 0);
     }
 
     @Test
-    public void list_all() {
+    public void list_all() throws Exception {
         String body = apiGet("/api/list.do?type=image,raw,video");
 
-        JSONArray json = null;
-        try {
-            json = new JSONArray(body);
-        } catch (JSONException ignored) {
-        }
+        JSONArray json = new JSONArray(body);
 
         Assert.assertNotNull(json);
     }
 
     @Test
-    public void list_missing_query() {
+    public void list_missing_query() throws Exception {
         Response response = apiGetResponse("/api/list.do");
         Assert.assertNotNull(response);
         Assert.assertFalse(response.isSuccessful());
@@ -107,15 +82,11 @@ public class ApiUnitTest extends BaseHttpTest {
     }
 
     @Test
-    public void exif_raw() {
-        String body = apiGet("/api/exif.do?f=" + getFileOfType("raw"));
+    public void exif_raw() throws Exception {
+        String absoluteFilePath = setupFile(TestFile.RAW);
+        String body = apiGet("/api/exif.do?f=" + absoluteFilePath);
 
-        JSONObject json = null;
-        try {
-            json = new JSONObject(body);
-        } catch (JSONException ignored) {
-
-        }
+        JSONObject json = new JSONObject(body);
 
         Assert.assertNotNull(json);
 
@@ -131,15 +102,11 @@ public class ApiUnitTest extends BaseHttpTest {
     }
 
     @Test
-    public void exif_jpg() {
-        String body = apiGet("/api/exif.do?f=" + getFileOfType("image"));
+    public void exif_jpg() throws Exception {
+        String absoluteFilePath = setupFile(TestFile.JPG);
+        String body = apiGet("/api/exif.do?f=" + absoluteFilePath);
 
-        JSONObject json = null;
-        try {
-            json = new JSONObject(body);
-        } catch (JSONException ignored) {
-
-        }
+        JSONObject json = new JSONObject(body);
 
         Assert.assertNotNull(json);
 
@@ -155,7 +122,7 @@ public class ApiUnitTest extends BaseHttpTest {
     }
 
     @Test
-    public void exif_fail() {
+    public void exif_fail() throws Exception {
         Response response = apiGetResponse("/api/exif.do?f=/sdcard/DCIM/invalid-file.JPG");
         Assert.assertNotNull(response);
         Assert.assertFalse(response.isSuccessful());
@@ -163,7 +130,7 @@ public class ApiUnitTest extends BaseHttpTest {
     }
 
     @Test
-    public void exif_missing_query() {
+    public void exif_missing_query() throws Exception {
         Response response = apiGetResponse("/api/exif.do");
         Assert.assertNotNull(response);
         Assert.assertFalse(response.isSuccessful());
@@ -171,24 +138,20 @@ public class ApiUnitTest extends BaseHttpTest {
     }
 
     @Test
-    public void exif_bad_file() {
-        Response response = apiGetResponse("/api/exif.do?f=/default.prop");
+    public void exif_bad_file() throws Exception {
+        String absoluteFilePath = setupFile(TestFile.VIDEO);
+        Response response = apiGetResponse("/api/exif.do?f=" + absoluteFilePath);
         Assert.assertNotNull(response);
         Assert.assertTrue(response.isSuccessful());
 
-        JSONObject json = null;
-        try {
-            json = new JSONObject(response.body().string());
-        } catch (JSONException | IOException ignored) {
-
-        }
+        JSONObject json = new JSONObject(response.body().string());
 
         Assert.assertNotNull(json);
         Assert.assertFalse(json.optBoolean("success", true));
     }
 
     @Test
-    public void exif_missing_file() {
+    public void exif_missing_file() throws Exception {
         Response response = apiGetResponse("/api/exif.do?f=/does-not-exist.txt");
         Assert.assertNotNull(response);
         Assert.assertFalse(response.isSuccessful());
@@ -196,8 +159,9 @@ public class ApiUnitTest extends BaseHttpTest {
     }
 
     @Test
-    public void thumbnail_raw() {
-        Response response = apiGetResponse("/thumbnail.do?f=" + getFileOfType("raw"));
+    public void thumbnail_raw() throws Exception {
+        String absoluteFilePath = setupFile(TestFile.RAW);
+        Response response = apiGetResponse("/thumbnail.do?f=" + absoluteFilePath);
         Assert.assertNotNull(response);
         Assert.assertTrue(response.isSuccessful());
         Assert.assertEquals("image/jpeg", response.header("Content-Type"));
@@ -205,8 +169,10 @@ public class ApiUnitTest extends BaseHttpTest {
     }
 
     @Test
-    public void thumbnail_jpg() {
-        Response response = apiGetResponse("/thumbnail.do?f=" + getFileOfType("image"));
+    @Config(shadows = ExifInterfaceShadow.class)
+    public void thumbnail_jpg() throws Exception {
+        String absoluteFilePath = setupFile(TestFile.JPG);
+        Response response = apiGetResponse("/thumbnail.do?f=" + absoluteFilePath);
         Assert.assertNotNull(response);
         Assert.assertTrue(response.isSuccessful());
         Assert.assertEquals("image/jpeg", response.header("Content-Type"));
@@ -214,8 +180,9 @@ public class ApiUnitTest extends BaseHttpTest {
     }
 
     @Test
-    public void thumbnail_video() {
-        Response response = apiGetResponse("/thumbnail.do?f=" + getFileOfType("video"));
+    public void thumbnail_video() throws Exception {
+        String absoluteFilePath = setupFile(TestFile.VIDEO);
+        Response response = apiGetResponse("/thumbnail.do?f=" + absoluteFilePath);
         Assert.assertNotNull(response);
         Assert.assertTrue(response.isSuccessful());
         Assert.assertEquals("image/jpeg", response.header("Content-Type"));
@@ -223,7 +190,7 @@ public class ApiUnitTest extends BaseHttpTest {
     }
 
     @Test
-    public void thumbnail_missing_query() {
+    public void thumbnail_missing_query() throws Exception {
         Response response = apiGetResponse("/thumbnail.do");
         Assert.assertNotNull(response);
         Assert.assertFalse(response.isSuccessful());
@@ -231,7 +198,7 @@ public class ApiUnitTest extends BaseHttpTest {
     }
 
     @Test
-    public void thumbnail_fail() {
+    public void thumbnail_fail() throws Exception {
         Response response = apiGetResponse("/thumbnail.do?f=/sdcard/DCIM/invalid-file.JPG");
         Assert.assertNotNull(response);
         Assert.assertFalse(response.isSuccessful());
@@ -239,10 +206,24 @@ public class ApiUnitTest extends BaseHttpTest {
     }
 
     @Test
-    public void thumbnail_unsupported_file_type() {
+    public void thumbnail_unsupported_file_type() throws Exception {
         Response response = apiGetResponse("/thumbnail.do?f=/sdcard/DCIM/other-file.txt");
         Assert.assertNotNull(response);
         Assert.assertFalse(response.isSuccessful());
         Assert.assertEquals(404, response.code());
+    }
+
+    /** This class avoids running into an NPE during constructor call. **/
+    @Implements(ExifInterface.class)
+    @SuppressWarnings("unused") // The methods are weaved in via byte code manipulation
+    public static class ExifInterfaceShadow {
+
+        public void __constructor__(String filename) {
+        }
+
+        @Implementation
+        public byte[] getThumbnail() {
+            return "mocked".getBytes();
+        }
     }
 }

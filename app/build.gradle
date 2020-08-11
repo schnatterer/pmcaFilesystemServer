@@ -1,6 +1,3 @@
-import com.android.ddmlib.AndroidDebugBridge
-import com.android.ddmlib.NullOutputReceiver
-
 apply plugin: 'com.android.application'
 
 android {
@@ -23,7 +20,6 @@ android {
         versionCode 2
         versionName "0.1.1-SNAPSHOT"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         debug {
@@ -38,35 +34,10 @@ android {
     lintOptions {
         abortOnError false
     }
-}
-
-task pushFilesToDevices {
-    def src = "${project.rootDir}/testFiles/"
-    def dest = "/sdcard/DCIM/TEST/"
-    def files = new File(src).listFiles()
-    AndroidDebugBridge.initIfNeeded(false)
-    def bridge = AndroidDebugBridge.createBridge(android.adbExecutable.path, false)
-    doLast {
-        bridge.devices.each { device ->
-            // Only push test files to emulator
-            if (device.isEmulator()) {
-                println "removing files from ${dest} on ${device.name}..."
-                device.executeShellCommand("rm ${dest}*", NullOutputReceiver.receiver)
-
-                println "pushing files from ${src} to ${device.name}..."
-                files.each { file ->
-                    device.pushFile(file.absolutePath, "${dest}${file.name}")
-                }
-
-                println "pushing test files to ${device.name} is done"
-            }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
         }
-    }
-}
-
-tasks.whenTaskAdded { taskItem ->
-    if (taskItem.name.contains("AndroidTest")) {
-        taskItem.dependsOn pushFilesToDevices
     }
 }
 
@@ -76,10 +47,9 @@ dependencies {
     compile 'org.nanohttpd:nanohttpd-webserver:2.3.1'
     compile 'com.drewnoakes:metadata-extractor:2.14.0'
 
-    testCompile 'junit:junit:4.12'
-
-    androidTestCompile 'com.android.support.test:runner:1.0.2'
-    androidTestCompile 'com.android.support.test:rules:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.robolectric:robolectric:4.3'
+    testImplementation 'androidx.test:core:1.2.0'
     //noinspection GradleDependency - newer versions don't work on Android 4.X
-    androidTestCompile 'com.squareup.okhttp3:okhttp:3.4.1'
+    testImplementation 'com.squareup.okhttp3:okhttp:3.4.1'
 }

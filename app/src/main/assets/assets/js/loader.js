@@ -13,8 +13,12 @@ const days = [];
 
 function loadFiles(types) {
   document.title = "Loading...";
+  $("#download").hide();
   const li = document.getElementById("main-gallery");
-  li.innerHTML = "";
+  li.innerHTML = `
+      <div class="alert alert-info mx-auto">
+        <strong>Loading!</strong> Please wait...
+      </div>`;
   fetch(base + "/api/list.do?type=" + types).then(async (resp) => {
     const json = await resp.json();
 
@@ -23,7 +27,10 @@ function loadFiles(types) {
             <div class="alert alert-danger mx-auto">
               <strong>No media!</strong> No media found for your current filter.
             </div>`;
+      return;
     }
+
+    li.innerHTML = "";
 
     days.length = 0;
     let day = null;

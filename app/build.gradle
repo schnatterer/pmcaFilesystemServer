@@ -32,10 +32,11 @@ android {
         }
     }
     lintOptions {
-        abortOnError false
+        lintConfig file("lint.xml")
     }
     testOptions {
         unitTests {
+            // Necessary for Robolectric
             includeAndroidResources = true
         }
     }

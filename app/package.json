@@ -10,6 +10,6 @@
     "file-saver": "2.0.2",
     "jquery": "3.5.1",
     "jszip": "3.5.0",
-    "lazyloadjs": "3.2.2"
+    "vanilla-lazyload": "17.1.0"
   }
 }

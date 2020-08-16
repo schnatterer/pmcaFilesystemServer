@@ -1,0 +1,15 @@
+{
+  "name": "pmcaFilesystemServer-app",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {},
+  "author": "Johannes Schnatterer",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "4.3.1",
+    "file-saver": "2.0.2",
+    "jquery": "3.5.1",
+    "jszip": "3.5.0",
+    "lazyloadjs": "3.2.2"
+  }
+}

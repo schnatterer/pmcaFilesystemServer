@@ -1,5 +1,8 @@
-/.gradle
+**/.gradle
 /.idea
 /build
 /local.properties
 /*.iml
+**/node_modules
+app/src/main/assets/assets/js/libs/
+app/src/main/assets/assets/css/libs/

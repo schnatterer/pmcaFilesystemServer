@@ -33,18 +33,31 @@ Mobile's Hotspot.
 
 Build requires JDK 8.
 
-## Connect to device 
+## Connect to device
+
+Install [OpenMemories: Tweak](https://github.com/ma1co/OpenMemories-Tweak) on your camera using 
+[Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE) or[sony-pmca.appspot.com](https://sony-pmca.appspot.com/apps).
+
+Start Tweak App on the camera, then enable ADB and Wi-Fi in the `Developer` tab.
+Once the Camera is connected to the Wi-Fi, the IP address is displayed `Connected to <SSID> (IP: <ip address>)`.
+
+On your developer machine, connect to the camera via adb as follows:
+
 ```bash
 adb tcpip 5555
-adb connect 192.168.178.53:5555
+adb connect <ip address>:5555
 ```
 
 See https://stackoverflow.com/a/3623727
 
+## Logging
+ 
+The app writes a log file to the SD card: `/storage/sdcard0/pmcaFilesystemServer/LOG.TXT`.
+
+## Releasing 
+
 For creating a release, set git tag and then upload an *unsigned* APK to GitHub's release page.
 Signed APKs seem to be denied by Sony-PMCA-RE.
-
-The app writes a log file to the SD card: `/storage/sdcard0/pmcaFilesystemServer/LOG.TXT`.
 
 ## Icon
 

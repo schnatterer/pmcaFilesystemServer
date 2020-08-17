@@ -6,7 +6,8 @@
   "author": "Johannes Schnatterer",
   "license": "MIT",
   "dependencies": {
-    "bootstrap": "4.3.1",
+    "bootstrap": "4.5.2",
+    "bootswatch": "4.5.2",
     "file-saver": "2.0.2",
     "jquery": "3.5.1",
     "jszip": "3.5.0",

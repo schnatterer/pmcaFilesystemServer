@@ -99,8 +99,7 @@ task copyNpmAssets() {
     
     copy {
         from ([
-                'node_modules/bootstrap/dist/css/bootstrap.min.css',
-                'node_modules/bootstrap/dist/css/bootstrap.min.css.map'
+                'node_modules/bootswatch/dist/darkly/bootstrap.min.css'
         ])
         into ("${rootDir}/app/src/main/assets/assets/css/libs/")
     }

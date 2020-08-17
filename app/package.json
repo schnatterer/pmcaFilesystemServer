@@ -2,7 +2,9 @@
   "name": "pmcaFilesystemServer-app",
   "version": "1.0.0",
   "description": "",
-  "scripts": {},
+  "scripts": {
+    "build:iconfont": "icon-font-generator src/main/assets/assets/icons/*.svg -o src/main/assets/assets/fonts/ --cssfontsurl ../fonts --csspath src/main/assets/assets/css/icons.css"
+  },
   "author": "Johannes Schnatterer",
   "license": "MIT",
   "dependencies": {
@@ -12,5 +14,8 @@
     "jquery": "3.5.1",
     "jszip": "3.5.0",
     "vanilla-lazyload": "17.1.0"
+  },
+  "devDependencies": {
+    "icon-font-generator": "2.1.10"
   }
 }

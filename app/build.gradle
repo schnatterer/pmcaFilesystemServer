@@ -74,6 +74,10 @@ node {
 
 build.dependsOn npmInstall
 
+task buildIconFont(type: NpmTask) {
+    args = ['run', 'build:iconfont']
+}
+
 task copyNpmAssets() {
     dependsOn npmInstall
     // Note copying in android{} with "applicationVariants.all { variant -> variant.mergeResources.doLast"
@@ -104,3 +108,6 @@ task copyNpmAssets() {
         into ("${rootDir}/app/src/main/assets/assets/css/libs/")
     }
 }
+
+// Build the font after npmInstall and copyNpmAssets
+copyNpmAssets.finalizedBy buildIconFont

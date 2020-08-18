@@ -72,20 +72,21 @@ node {
     download = true
 }
 
-build.dependsOn npmInstall
-
-task buildIconFont(type: NpmTask) {
-    args = ['run', 'build:iconfont']
-}
-
 task copyNpmAssets() {
-    dependsOn npmInstall
+    
     // Note copying in android{} with "applicationVariants.all { variant -> variant.mergeResources.doLast"
     // directly to "${buildDir}/intermediates/merged_assets/${variant.dirName}/out/assets/js/libs/"
     // seems not to work.
     // The resources are copied ("gradle app:mergeReleaseResources") but seem to be overwritten by the contents in 
     // "src/main/assets/assets/js" when running "gradle build".
     // So we copy them into the sources dir. No beautiful solution. But it works after hours of frustration. 
+    
+    def jsLibsDir = "${rootDir}/app/src/main/assets/assets/js/libs/"
+    def cssLibsDir = "${rootDir}/app/src/main/assets/assets/css/libs/"
+    
+    inputs.files('package.json', 'package-lock.json')
+    outputs.dir jsLibsDir
+    outputs.dir cssLibsDir
     
     // TODO this could be improved by gulp or webpack and the likes.
     copy {
@@ -98,16 +99,27 @@ task copyNpmAssets() {
                 'node_modules/jquery/dist/jquery.slim.min.js',
                 'node_modules/vanilla-lazyload/dist/lazyload.min.js'
         ])
-        into ("${rootDir}/app/src/main/assets/assets/js/libs/")
+        into (jsLibsDir)
     }
     
     copy {
         from ([
                 'node_modules/bootswatch/dist/darkly/bootstrap.min.css'
         ])
-        into ("${rootDir}/app/src/main/assets/assets/css/libs/")
+        into (cssLibsDir)
     }
 }
 
-// Build the font after npmInstall and copyNpmAssets
-copyNpmAssets.finalizedBy buildIconFont
+task buildIconFont(type: NpmTask) {
+    def fontsDir = "${rootDir}/app/src/main/assets/assets/fonts/"
+    
+    inputs.files('package.json', 'package-lock.json')
+    outputs.dir fontsDir
+    outputs.files("${rootDir}/app/src/main/assets/assets/css/icons.css")
+
+    mkdir fontsDir
+    args = ['run', 'build:iconfont']
+}
+
+build.dependsOn npmInstall
+npmInstall.finalizedBy copyNpmAssets, buildIconFont

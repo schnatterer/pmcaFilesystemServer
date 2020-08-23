@@ -110,6 +110,7 @@ public class ApiUnitTest extends BaseHttpTest {
 
         Assert.assertNotNull(json);
 
+        Assert.assertEquals(json.optString("success"), "true");
         Assert.assertNotNull(json.optString("Name"));
         Assert.assertNotNull(json.optString("Model"));
         Assert.assertNotSame(0, json.optLong("LastModified"));

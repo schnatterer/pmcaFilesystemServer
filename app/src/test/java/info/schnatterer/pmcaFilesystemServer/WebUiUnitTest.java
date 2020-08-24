@@ -36,7 +36,7 @@ public class WebUiUnitTest extends BaseHttpTest{
 
     @Test
     public void get_js() throws Exception {
-        String body = apiGet("/assets/js/loader.js");
+        String body = apiGet("/assets/js/main.js");
         Assert.assertNotNull(body);
     }
 

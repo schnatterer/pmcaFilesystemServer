@@ -81,27 +81,12 @@ task copyNpmAssets() {
     // "src/main/assets/assets/js" when running "gradle build".
     // So we copy them into the sources dir. No beautiful solution. But it works after hours of frustration. 
     
-    def jsLibsDir = "${rootDir}/app/src/main/assets/assets/js/libs/"
     def cssLibsDir = "${rootDir}/app/src/main/assets/assets/css/libs/"
     
     inputs.files('package.json', 'package-lock.json')
-    outputs.dir jsLibsDir
     outputs.dir cssLibsDir
-    
-    // TODO this could be improved by gulp or webpack and the likes.
-    copy {
-        from ([
-                'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
-                'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js.map',
-                'node_modules/file-saver/dist/FileSaver.min.js',
-                'node_modules/file-saver/dist/FileSaver.min.js.map',
-                'node_modules/jszip/dist/jszip.min.js',
-                'node_modules/jquery/dist/jquery.slim.min.js',
-                'node_modules/vanilla-lazyload/dist/lazyload.min.js'
-        ])
-        into (jsLibsDir)
-    }
-    
+
+    // TODO optimize via webpack
     copy {
         from ([
                 'node_modules/bootswatch/dist/darkly/bootstrap.min.css'
@@ -110,16 +95,20 @@ task copyNpmAssets() {
     }
 }
 
-task buildIconFont(type: NpmTask) {
+task webpack(type: NpmTask) {
+    def jsSrcDir = "${rootDir}/app/src/main/js/"
     def fontsDir = "${rootDir}/app/src/main/assets/assets/fonts/"
-    
-    inputs.files('package.json', 'package-lock.json')
+    def assetsDir = "${rootDir}/app/src/main/assets/assets"
+
+    inputs.files('package.json', 'webpack.config.js', 'package-lock.json')
+    inputs.dir jsSrcDir
+
+    outputs.files("${assetsDir}/js/main.js", "${assetsDir}/css/icons.css")
     outputs.dir fontsDir
-    outputs.files("${rootDir}/app/src/main/assets/assets/css/icons.css")
 
     mkdir fontsDir
-    args = ['run', 'build:iconfont']
+    args = ['run', 'build']
 }
 
-build.dependsOn npmInstall
-npmInstall.finalizedBy copyNpmAssets, buildIconFont
+preBuild.dependsOn npmInstall
+npmInstall.finalizedBy copyNpmAssets, webpack

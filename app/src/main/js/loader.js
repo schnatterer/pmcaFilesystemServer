@@ -14,7 +14,7 @@ function init(base, meta) {
 
     // load filter settings from local storage
     if (localStorage.getItem("filetype-filter") != null) {
-        filter = localStorage.getItem("filetype-filter").split(",");
+        const filter = localStorage.getItem("filetype-filter").split(",");
         $(".filter-checkbox").prop("checked", false);
         for (const f of filter) {
             $(".filter-checkbox#" + f).prop("checked", true);
@@ -127,8 +127,6 @@ function isSameDay(day, date) {
 }
 
 module.exports = {
-    init : init,
-    loadFiles: loadFiles,
-    onFilterChanged: onFilterChanged,
+    init : init
 };
 

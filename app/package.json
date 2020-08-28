@@ -6,7 +6,8 @@
   "scripts": {
     "build:iconfont": "icon-font-generator src/main/assets/assets/icons/*.svg -o src/main/assets/assets/fonts/ --cssfontsurl ../fonts --csspath src/main/assets/assets/css/icons.css",
     "build": "npm run build:iconfont && webpack",
-    "watch": "webpack --watch --mode=\"development\""
+    "watch": "webpack --watch --mode=\"development\"",
+    "test": "jest"
   },
   "author": "Johannes Schnatterer",
   "license": "MIT",
@@ -22,6 +23,16 @@
   "devDependencies": {
     "icon-font-generator": "2.1.10",
     "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12"
+    "webpack-cli": "^3.3.12",
+    "node-fetch": "^2.6.0",
+    "fetch-mock": "^9.10.7",
+    "jest": "^26.4.2"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": [
+      "lcov"
+    ],
+    "coverageDirectory": "build/coverage"
   }
 }

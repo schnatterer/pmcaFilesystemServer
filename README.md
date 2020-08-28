@@ -50,6 +50,28 @@ adb connect <ip address>:5555
 
 See https://stackoverflow.com/a/3623727
 
+# Web development
+
+```bash
+npm run watch
+```
+
+Then deploy app. In future we should provide a development server.
+
+## Tests
+
+```bash
+./gradlew connectedCheck
+```
+
+to run all tests, or
+
+```bash
+npm run test
+```
+
+to run JS tests only. 
+
 ## Logging
  
 The app writes a log file to the SD card: `/storage/sdcard0/pmcaFilesystemServer/LOG.TXT`.

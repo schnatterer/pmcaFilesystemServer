@@ -110,5 +110,20 @@ task webpack(type: NpmTask) {
     args = ['run', 'build']
 }
 
+task jest(type: NpmTask) {
+    def jsSrcDir = "${rootDir}/app/src/main/js/"
+    def jsTestDir = "${rootDir}/app/src/test/js/"
+    def jsCoverageDir = "${buildDir}/coverage"
+    
+    inputs.files('package.json', 'package-lock.json')
+    inputs.dir jsTestDir
+    inputs.dir jsSrcDir
+
+    outputs.dir jsCoverageDir
+
+    args = ['run', 'test']
+}
+
 preBuild.dependsOn npmInstall
 npmInstall.finalizedBy copyNpmAssets, webpack
+connectedCheck.finalizedBy jest

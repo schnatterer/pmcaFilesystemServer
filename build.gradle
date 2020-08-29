@@ -6,7 +6,9 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.2'
+        classpath 'com.android.tools.build:gradle:3.6.4'
+        //classpath 'com.android.tools.build:gradle:4.0.1' requires gradle 6 which seems to break a lot for the ancient
+        // android versions used on the cameras 
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files

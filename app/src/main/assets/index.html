@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <title>pmcaFilesystemServer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="stylesheet" type="text/css" href="assets/css/libs/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="assets/css/navbar-fixed-right.css" />
+  <link rel="stylesheet" type="text/css" href="assets/css/styles.css" />
+  <link rel="stylesheet" type="text/css" href="assets/css/icons.css" />
+</head>
+
+<body>
+  <!-- Side nav bar -->
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-right">
+    <span class="navbar-brand" id="title">{{title}}</span>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+      aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+      <ul class="navbar-nav">
+        <form class="mt-2 mb-4">
+          <span class="navbar-text col-12 p-0">
+            Filter file type:
+          </span>
+          <div class="form-check">
+            <label class="form-check-label navbar-text"><input type="checkbox" class="form-check-input filter-checkbox"
+                id="image" checked />
+              Show JPGS</label>
+          </div>
+          <div class="form-check">
+            <label class="form-check-label navbar-text"><input type="checkbox" class="form-check-input filter-checkbox"
+                id="video" checked />
+              Show Videos</label>
+          </div>
+          <div class="form-check">
+            <label class="form-check-label navbar-text"><input type="checkbox" class="form-check-input filter-checkbox"
+                id="raw" checked />
+              Show RAW</label>
+          </div>
+          <div class="col-12 p-0 mt-1">
+            <button class="btn btn-sm btn-block btn-outline-light my-2 my-sm-0" id="filter" type="button">
+              Apply filter
+            </button>
+          </div>
+        </form>
+        <div class="col-12 p-0 mb-4">
+          <button class="btn btn-sm btn-block btn-outline-light my-2 my-sm-0" id="download" type="button">
+            Download
+          </button>
+        </div>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Jump to date
+          </a>
+          <div class="dropdown-menu scrollable-menu" aria-labelledby="navbarDropdown" id="date-list"></div>
+        </li>
+
+        <div class="form-group col-12 p-0 mt-4">
+          <a href="#" id="link-logfile" class="text-primary">
+            Open log file
+          </a>
+        </div>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <div class="container-fluid mt-2">
+    <div class="row text-lg-left" id="main-gallery"></div>
+  </div>
+
+  <!-- Detail modal -->
+  <div class="modal" tabindex="-1" role="dialog" id="infoModel">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Loading...</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="d-flex flex-column flex-lg-row align-content-stretch">
+            <div class="flex-grow-1 order-1 order-lg-0">
+              <img class="modal-image img-fluid w-100" />
+            </div>
+            <div class="p-2 order-0 order-lg-1 modal-detail"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+          <a class="btn btn-primary model-link" href="#" target="_blank" download>Download</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZIP modal -->
+  <div class="modal" tabindex="-1" role="dialog" id="zipModel">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Downloading zip file...</h5>
+        </div>
+        <div class="modal-body">
+          <div class="progress">
+            <div id="zip-progress" class="progress-bar" role="progressbar" style="width: 25%; height: 30px;"></div>
+          </div>
+          <pre class="bg-secondary mt-2" id="zip-log"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script type="text/javascript" src="assets/js/main.js"></script>
+</body>
+
+</html>

@@ -1,4 +1,16 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.moowork.node'
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'com.moowork.gradle:gradle-node-plugin:1.3.1'
+    }
+}
 
 android {
     /* Cameras run older android systems, e.g.
@@ -19,11 +31,25 @@ android {
         targetSdkVersion 23
         versionCode 2
         versionName "0.1.1-SNAPSHOT"
+
     }
     buildTypes {
+        debug {
+            testCoverageEnabled true
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    lintOptions {
+        lintConfig file("lint.xml")
+    }
+    testOptions {
+        unitTests {
+            // Necessary for Robolectric
+            includeAndroidResources = true
         }
     }
 }
@@ -32,4 +58,72 @@ dependencies {
     compile 'com.github.ma1co.OpenMemories-Framework:framework:f8df350'
     provided 'com.github.ma1co.OpenMemories-Framework:stubs:f8df350'
     compile 'org.nanohttpd:nanohttpd-webserver:2.3.1'
+    compile 'com.drewnoakes:metadata-extractor:2.14.0'
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.robolectric:robolectric:4.3'
+    testImplementation 'androidx.test:core:1.2.0'
+    //noinspection GradleDependency - newer versions don't work on Android 4.X
+    testImplementation 'com.squareup.okhttp3:okhttp:3.4.1'
 }
+
+node {
+    version = '12.18.3'
+    download = true
+}
+
+task copyNpmAssets() {
+    
+    // Note copying in android{} with "applicationVariants.all { variant -> variant.mergeResources.doLast"
+    // directly to "${buildDir}/intermediates/merged_assets/${variant.dirName}/out/assets/js/libs/"
+    // seems not to work.
+    // The resources are copied ("gradle app:mergeReleaseResources") but seem to be overwritten by the contents in 
+    // "src/main/assets/assets/js" when running "gradle build".
+    // So we copy them into the sources dir. No beautiful solution. But it works after hours of frustration. 
+    
+    def cssLibsDir = "${rootDir}/app/src/main/assets/assets/css/libs/"
+    
+    inputs.files('package.json', 'package-lock.json')
+    outputs.dir cssLibsDir
+
+    // TODO optimize via webpack
+    copy {
+        from ([
+                'node_modules/bootswatch/dist/darkly/bootstrap.min.css'
+        ])
+        into (cssLibsDir)
+    }
+}
+
+task webpack(type: NpmTask) {
+    def jsSrcDir = "${rootDir}/app/src/main/js/"
+    def fontsDir = "${rootDir}/app/src/main/assets/assets/fonts/"
+    def assetsDir = "${rootDir}/app/src/main/assets/assets"
+
+    inputs.files('package.json', 'webpack.config.js', 'package-lock.json')
+    inputs.dir jsSrcDir
+
+    outputs.files("${assetsDir}/js/main.js", "${assetsDir}/css/icons.css")
+    outputs.dir fontsDir
+
+    mkdir fontsDir
+    args = ['run', 'build']
+}
+
+task jest(type: NpmTask) {
+    def jsSrcDir = "${rootDir}/app/src/main/js/"
+    def jsTestDir = "${rootDir}/app/src/test/js/"
+    def jsCoverageDir = "${buildDir}/coverage"
+    
+    inputs.files('package.json', 'package-lock.json')
+    inputs.dir jsTestDir
+    inputs.dir jsSrcDir
+
+    outputs.dir jsCoverageDir
+
+    args = ['run', 'test']
+}
+
+preBuild.dependsOn npmInstall
+npmInstall.finalizedBy copyNpmAssets, webpack
+connectedCheck.finalizedBy jest

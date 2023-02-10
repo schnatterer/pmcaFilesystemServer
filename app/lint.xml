@@ -1,0 +1,8 @@
+<lint>
+    <issue id="InvalidPackage">
+        <!-- Avoid error with metadata-extractor from breaking the build
+             Invalid package reference in library; not included in Android: java.awt. Referenced from com.drew.metadata.mov.atoms.TrackHeaderAtom.
+         -->
+        <ignore path="**/metadata-extractor-*.jar"/>
+    </issue>
+</lint>

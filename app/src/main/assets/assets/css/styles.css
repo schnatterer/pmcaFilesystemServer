@@ -1,0 +1,87 @@
+.card-body {
+  padding: 0.5rem;
+}
+.card-title {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+}
+.day-title {
+  border-top: 2px solid #888;
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+}
+.day-title:first-child {
+  border-top: none;
+  margin-top: 0;
+}
+.card {
+  overflow: hidden;
+}
+.card-img,
+.card-img-top,
+.card {
+  border-radius: 0;
+}
+.card-link {
+  cursor: pointer;
+}
+.card-body:hover {
+  background: #444;
+}
+
+.col-lg-2 {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.card.mb {
+  margin-bottom: 5px;
+}
+
+.scrollable-menu {
+  height: auto;
+  max-height: 400px;
+  overflow-x: hidden;
+}
+
+.navbar-dark .navbar-text {
+  color: #fff;
+}
+
+.navbar-text {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+.modal-content,
+.modal-footer,
+.modal-header {
+  border: none;
+}
+
+.modal-detail {
+  background: #444444;
+  white-space: nowrap;
+}
+
+.modal-detail i {
+  padding-right: 0.25rem !important;
+}
+
+.modal-detail p {
+  margin-bottom: 0.25rem;
+  line-height: 1;
+}
+
+#zip-log {
+  overflow: auto;
+  max-height: 500px;
+}
+
+.card-link .form-check-input,
+.day-title .form-check-input {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0;
+}
